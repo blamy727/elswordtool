@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>엘소드 도구</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fef9f1;
+      --ink: #232127;
+      --card: rgba(255, 255, 255, 0.78);
+      --line: rgba(35, 33, 39, 0.16);
+      --accent: #ed6a2c;
+      --accent-strong: #ca4b14;
+      --accent-soft: #ffcfb5;
+      --ok: #0b8f58;
+      --warn: #bc2e17;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% -10%, #ffd9a8 0%, transparent 35%),
+        radial-gradient(circle at 100% 0%, #ffe8d9 0%, transparent 30%),
+        linear-gradient(140deg, #fffaf3 0%, #fdf4e9 45%, #f9efe5 100%);
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--card);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 10px 28px rgba(41, 30, 21, 0.08);
+    }
+
+    .hero {
+      padding: 28px;
+      animation: rise 0.5s ease-out;
+    }
+
+    .hero h1 {
+      font-family: "Black Han Sans", sans-serif;
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      letter-spacing: 0.02em;
+      font-weight: 400;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.86;
+    }
+
+    .panel {
+      padding: 18px;
+      animation: rise 0.6s ease-out;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #514c56;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
+      box-shadow: 0 6px 18px rgba(202, 75, 20, 0.24);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+      animation: rise 0.25s ease-out;
+    }
+
+    .tool-title {
+      margin: 0 0 12px;
+      font-weight: 400;
+      font-size: 1.24rem;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.75fr;
+      gap: 8px;
+    }
+
+    .head {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #5a575f;
+      margin-bottom: 3px;
+    }
+
+    .row {
+      display: contents;
+    }
+
+    .control {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(237, 106, 44, 0.2);
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .result {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .score {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .grade {
+      margin: 4px 0 0;
+      font-weight: 700;
+    }
+
+    .grade.good {
+      color: var(--ok);
+    }
+
+    .grade.bad {
+      color: var(--warn);
+    }
+
+    .sub {
+      margin: 10px 0 0;
+      color: #5a575f;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .breakdown {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      font-size: 0.92rem;
+    }
+
+    .checklist-wrap {
+      margin-top: 10px;
+    }
+
+    .daily-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0 14px;
+    }
+
+    .daily-chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 6px 12px;
+      font-size: 0.86rem;
+      color: #4c4951;
+    }
+
+    .quest-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .quest-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      cursor: grab;
+    }
+
+    .quest-item:active {
+      cursor: grabbing;
+    }
+
+    .quest-item.done {
+      background: #dcf8e6;
+      border-color: #86d8a8;
+    }
+
+    .quest-item.dragging {
+      opacity: 0.55;
+    }
+
+    .quest-item.drag-over {
+      border-color: var(--accent-strong);
+      box-shadow: inset 0 0 0 2px rgba(202, 75, 20, 0.22);
+    }
+
+    .quest-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-strong);
+      cursor: pointer;
+    }
+
+    .quest-label {
+      flex: 1;
+      font-size: 0.96rem;
+      line-height: 1.3;
+      transition: color 0.15s ease;
+    }
+
+    .quest-tail {
+      width: 52px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .drag-handle {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #8f8795;
+      width: 46px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.92rem;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .quest-actions {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .quest-delete-btn {
+      border: 1px solid #e4d6cd;
+      background: #fff6f2;
+      color: #aa3a1f;
+      border-radius: 8px;
+      width: 46px;
+      height: 28px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .quest-delete-btn:hover {
+      filter: brightness(0.98);
+    }
+
+    .quest-add {
+      margin: 10px 0 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .empty-quest {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      color: #7d7883;
+      font-size: 0.92rem;
+      text-align: center;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <h1>엘소드 도구</h1>
+      <p>게임 편의 도구를 사용할 수 있습니다.</p>
+    </section>
+
+    <section class="panel">
+      <div class="tabs" role="tablist" aria-label="엘소드 도구 탭">
+        <button class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="panel-daily" id="tab-daily" data-tab="panel-daily">일일 퀘스트 체크리스트</button>
+        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-weekly" id="tab-weekly" data-tab="panel-weekly">주간 퀘스트 체크리스트</button>
+        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-dragon" id="tab-dragon" data-tab="panel-dragon">사룡무 옵변 점수 계산기</button>
+      </div>
+
+      <div class="tab-panel active" role="tabpanel" aria-labelledby="tab-daily" id="panel-daily">
+        <h2 class="tool-title">일일 퀘스트 체크리스트</h2>
+        <p class="sub">매일 오전 10시 기준으로 체크가 초기화됩니다.</p>
+        <section class="checklist-wrap">
+          <div class="daily-meta">
+            <span class="daily-chip" id="dailyProgress">진행률: 0/0</span>
+          </div>
+          <div class="quest-add">
+            <input class="control" id="dailyQuestInput" type="text" placeholder="직접 일일 퀘스트를 추가하세요">
+            <button class="btn btn-secondary" id="dailyAddBtn" type="button">퀘스트 추가</button>
+          </div>
+          <ul class="quest-list" id="dailyQuestList"></ul>
+          <div class="quest-actions">
+            <button class="btn btn-secondary" id="dailyDeleteModeBtn" type="button">삭제</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="tab-panel" role="tabpanel" aria-labelledby="tab-weekly" id="panel-weekly">
+        <h2 class="tool-title">주간 퀘스트 체크리스트</h2>
+        <p class="sub">매주 목요일 오전 10시 기준으로 체크가 초기화됩니다.</p>
+        <section class="checklist-wrap">
+          <div class="daily-meta">
+            <span class="daily-chip" id="weeklyProgress">진행률: 0/0</span>
+          </div>
+          <div class="quest-add">
+            <input class="control" id="weeklyQuestInput" type="text" placeholder="직접 주간 퀘스트를 추가하세요">
+            <button class="btn btn-secondary" id="weeklyAddBtn" type="button">퀘스트 추가</button>
+          </div>
+          <ul class="quest-list" id="weeklyQuestList"></ul>
+          <div class="quest-actions">
+            <button class="btn btn-secondary" id="weeklyDeleteModeBtn" type="button">삭제</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="tab-panel" role="tabpanel" aria-labelledby="tab-dragon" id="panel-dragon">
+        <h2 class="tool-title">사룡무 옵변 점수 계산기</h2>
+        <h3 class="section-title">옵션 입력</h3>
+        <div class="grid" id="optionGrid">
+          <div class="head">옵션</div>
+          <div class="head">수치</div>
+        </div>
+        <p class="sub">옵션 수치를 선택하면 표에 맞는 가중치가 자동으로 점수에 반영됩니다.</p>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="calcBtn" type="button">점수 계산</button>
+          <button class="btn btn-secondary" id="resetBtn" type="button">입력 초기화</button>
+        </div>
+
+        <div class="result" id="resultBox">
+          <p class="score">점수: 0점</p>
+          <p class="grade">등급: 입력중</p>
+          <p class="sub">옵션을 입력하고 계산 버튼을 눌러 주세요.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const OPTION_TABLE = [
+      {
+        name: "강수 물리/마법 공격력 %",
+        isPercent: true,
+        values: {
+          "0.8": 5,
+          "0.9": 6,
+          "1.0": 6.5,
+          "1.1": 6.75,
+          "1.2": 7.5,
+          "1.3": 8,
+          "1.4": 9,
+          "1.5": 9.5
+        }
+      },
+      {
+        name: "강수 물리/마법 공격력 Lv",
+        isPercent: false,
+        values: {
+          "0.8": 3,
+          "0.9": 3.75,
+          "1.0": 4.3,
+          "1.1": 5,
+          "1.2": 4.75,
+          "1.3": 6.25,
+          "1.4": 6.75,
+          "1.5": 7.25
+        }
+      },
+      {
+        name: "강수 모든 스킬 데미지",
+        isPercent: true,
+        values: {
+          "0.8": 3.5,
+          "0.9": 4.25,
+          "1.0": 4.75,
+          "1.1": 6,
+          "1.2": 7.5,
+          "1.3": 8,
+          "1.4": 8.5,
+          "1.5": 9
+        }
+      },
+      {
+        name: "강수 크리티컬 데미지",
+        isPercent: true,
+        values: {
+          "0.8": 3,
+          "0.9": 3.75,
+          "1.0": 4.5,
+          "1.1": 4.75,
+          "1.2": 5.5,
+          "1.3": 6.5,
+          "1.4": 7,
+          "1.5": 7.5
+        }
+      },
+      {
+        name: "물리/마법 공격력 %",
+        isPercent: true,
+        values: {
+          "6": 3,
+          "7": 3.5,
+          "8": 4,
+          "9": 4.5,
+          "10": 5.5,
+          "11": 6,
+          "12": 6.5,
+          "13": 7
+        }
+      },
+      {
+        name: "물리/마법 공격력 Lv",
+        isPercent: false,
+        values: {
+          "6": 1.25,
+          "7": 1.75,
+          "8": 2.25,
+          "9": 2.75,
+          "10": 3.25,
+          "11": 3.75,
+          "12": 4.25,
+          "13": 4.75
+        }
+      },
+      {
+        name: "양극화 : 타격/피격 데미지 %",
+        isPercent: true,
+        values: {
+          "5": 3.5,
+          "6": 4,
+          "7": 4.5,
+          "8": 5,
+          "9": 6,
+          "10": 6.5,
+          "11": 7,
+          "12": 8
+        }
+      },
+      {
+        name: "추가 피해 %",
+        isPercent: true,
+        values: {
+          "5": 3.5,
+          "6": 4,
+          "7": 4.5,
+          "8": 5,
+          "9": 6,
+          "10": 6.5,
+          "11": 7,
+          "12": 8
+        }
+      },
+      {
+        name: "강렬한/초월한 스킬 데미지 %",
+        isPercent: true,
+        values: {
+          "6": 1.5,
+          "7": 2,
+          "8": 2.5,
+          "9": 3,
+          "10": 3.5,
+          "11": 4,
+          "12": 4.5,
+          "13": 5
+        }
+      },
+      {
+        name: "모든 스킬 데미지 %",
+        isPercent: true,
+        values: {
+          "6": 2,
+          "7": 2.5,
+          "8": 3,
+          "9": 3.5,
+          "10": 4,
+          "11": 4.5,
+          "12": 5,
+          "13": 5.5
+        }
+      },
+      {
+        name: "크리티컬 데미지 %",
+        isPercent: true,
+        values: {
+          "6": 1.5,
+          "7": 2,
+          "8": 2.5,
+          "9": 3,
+          "10": 3.5,
+          "11": 4,
+          "12": 4.5,
+          "13": 5
+        }
+      },
+      {
+        name: "보스에게 주는 피해 %",
+        isPercent: true,
+        values: {
+          "8": 1.5,
+          "9": 2,
+          "10": 2.5,
+          "11": 3,
+          "12": 3.5,
+          "13": 4,
+          "14": 4.5,
+          "15": 5
+        }
+      }
+    ];
+
+    const OPTION_MAP = OPTION_TABLE.reduce((acc, item) => {
+      acc[item.name] = item.values;
+      return acc;
+    }, {});
+
+    const OPTION_META = OPTION_TABLE.reduce((acc, item) => {
+      acc[item.name] = { isPercent: item.isPercent };
+      return acc;
+    }, {});
+
+    const MAX_OPTIONS = 4;
+
+    const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
+    const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
+    const optionGrid = document.getElementById("optionGrid");
+    const resultBox = document.getElementById("resultBox");
+    const calcBtn = document.getElementById("calcBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const dailyProgress = document.getElementById("dailyProgress");
+    const dailyQuestList = document.getElementById("dailyQuestList");
+    const dailyQuestInput = document.getElementById("dailyQuestInput");
+    const dailyAddBtn = document.getElementById("dailyAddBtn");
+    const dailyDeleteModeBtn = document.getElementById("dailyDeleteModeBtn");
+    const weeklyProgress = document.getElementById("weeklyProgress");
+    const weeklyQuestList = document.getElementById("weeklyQuestList");
+    const weeklyQuestInput = document.getElementById("weeklyQuestInput");
+    const weeklyAddBtn = document.getElementById("weeklyAddBtn");
+    const weeklyDeleteModeBtn = document.getElementById("weeklyDeleteModeBtn");
+    const SCORE_BASE = 33;
+    const DAILY_STORAGE_KEY = "elswordDailyChecklistState";
+    const DAILY_QUESTS_KEY = "elswordDailyChecklistQuests";
+    const WEEKLY_STORAGE_KEY = "elswordWeeklyChecklistState";
+    const WEEKLY_QUESTS_KEY = "elswordWeeklyChecklistQuests";
+    const DEFAULT_DAILY_QUESTS = [
+      "서펜티움 던전 5회 클리어",
+      "물빛 휘파람 1회 클리어",
+      "티르노그 던전 5회 클리어",
+      "뒤틀린 시공 - 파르만의 봉우리 5회 클리어",
+      "강철 성벽 5회 클리어",
+      "거신의 침소 5회 클리어",
+      "플레가스의 미궁 5회 클리어",
+      "플레가스의 시선 1회 클리어",
+      "플레가스의 초상 1회 클리어",
+      "수도행 열차 1회 클리어",
+      "혼의 안식처 1회 클리어",
+      "영웅 던전 3회 클리어",
+      "길드 게임 3종 플레이"
+    ];
+    const DEFAULT_WEEKLY_QUESTS = [
+      "비밀 던전 5회 클리어",
+      "미러 델 5바퀴 클리어",
+      "정령왕의 사원 10회 클리어",
+      "둠 아포리아 레이드 클리어",
+      "서펜티움 레이드 클리어",
+      "심연 레이드 클리어",
+      "심연 레이드 (스토리) 클리어",
+      "프뤼나움 레이드 클리어",
+      "프뤼나움 레이드 (스토리) 클리어",
+      "바니미르 레이드 클리어",
+      "바니미르 레이드 (스토리) 클리어",
+      "헤니르의 시공 - 일반 클리어",
+      "헤니르의 시공 - 도전 클리어",
+      "헤니르의 시공 - 데빌 오브 카오스 클리어",
+      "헤니르의 시공 - 하이엔트로피 클리어"
+    ];
+    let dailyQuests = [];
+    let weeklyQuests = [];
+    let isDailyDeleteMode = false;
+    let isWeeklyDeleteMode = false;
+    const MUTUALLY_EXCLUSIVE_PAIRS = [
+      ["강수 물리/마법 공격력 %", "물리/마법 공격력 %"],
+      ["강수 물리/마법 공격력 Lv", "물리/마법 공격력 Lv"],
+      ["강수 모든 스킬 데미지", "모든 스킬 데미지 %"],
+      ["강수 크리티컬 데미지", "크리티컬 데미지 %"]
+    ];
+
+    function setActiveTab(panelId) {
+      tabButtons.forEach((button) => {
+        const isActive = button.dataset.tab === panelId;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
+
+      tabPanels.forEach((panel) => {
+        panel.classList.toggle("active", panel.id === panelId);
+      });
+    }
+
+    function createOptionSelect(index) {
+      const select = document.createElement("select");
+      select.className = "control";
+      select.id = `opt${index}`;
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "옵션 선택";
+      select.appendChild(placeholder);
+
+      OPTION_TABLE.forEach((preset) => {
+        const option = document.createElement("option");
+        option.value = preset.name;
+        option.textContent = preset.name;
+        select.appendChild(option);
+      });
+
+      return select;
+    }
+
+    function createValueSelect(index) {
+      const select = document.createElement("select");
+      select.className = "control";
+      select.id = `val${index}`;
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "수치 선택";
+      select.appendChild(placeholder);
+
+      return select;
+    }
+
+    function populateValueSelect(optionName, valueSelect) {
+      valueSelect.innerHTML = "";
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "수치 선택";
+      valueSelect.appendChild(placeholder);
+
+      if (!optionName) {
+        return;
+      }
+
+      const values = OPTION_MAP[optionName];
+      const isPercent = OPTION_META[optionName]?.isPercent;
+      Object.keys(values)
+        .sort((a, b) => Number(b) - Number(a))
+        .forEach((valueKey) => {
+        const option = document.createElement("option");
+        option.value = valueKey;
+        option.textContent = isPercent ? `${valueKey}%` : valueKey;
+        valueSelect.appendChild(option);
+        });
+    }
+
+    function isOptionSelectedElsewhere(optionName, currentIndex) {
+      if (!optionName) {
+        return false;
+      }
+
+      for (let i = 1; i <= MAX_OPTIONS; i += 1) {
+        if (i === currentIndex) {
+          continue;
+        }
+
+        const select = document.getElementById(`opt${i}`);
+        if (select && select.value === optionName) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function findConflictOption(optionName, currentIndex) {
+      if (!optionName) {
+        return "";
+      }
+
+      const pair = MUTUALLY_EXCLUSIVE_PAIRS.find((items) => items.includes(optionName));
+      if (!pair) {
+        return "";
+      }
+
+      const otherOption = pair[0] === optionName ? pair[1] : pair[0];
+      for (let i = 1; i <= MAX_OPTIONS; i += 1) {
+        if (i === currentIndex) {
+          continue;
+        }
+
+        const select = document.getElementById(`opt${i}`);
+        if (select && select.value === otherOption) {
+          return otherOption;
+        }
+      }
+
+      return "";
+    }
+
+    function renderRows() {
+      for (let i = 1; i <= MAX_OPTIONS; i += 1) {
+        const rowFlag = document.createElement("div");
+        rowFlag.className = "row";
+
+        const opt = createOptionSelect(i);
+        const val = createValueSelect(i);
+
+        opt.addEventListener("change", () => {
+          if (isOptionSelectedElsewhere(opt.value, i)) {
+            alert("같은 옵션은 중복 선택할 수 없습니다.");
+            opt.value = "";
+            populateValueSelect("", val);
+            return;
+          }
+
+          const conflictOption = findConflictOption(opt.value, i);
+          if (conflictOption) {
+            alert(`그 옵션은 함께 선택할 수 없습니다.`);
+            opt.value = "";
+            populateValueSelect("", val);
+            return;
+          }
+
+          populateValueSelect(opt.value, val);
+        });
+
+        optionGrid.appendChild(rowFlag);
+        optionGrid.appendChild(opt);
+        optionGrid.appendChild(val);
+      }
+
+    }
+
+    function getGrade(score100) {
+      if (score100 >= 86) {
+        return "종결";
+      }
+      if (score100 >= 70) {
+        return "준종결 (모듈작)";
+      }
+      if (score100 >= 50) {
+        return "돌리는게 좋음";
+      }
+      return "돌려";
+    }
+
+    function calculate() {
+      const usedOptions = [];
+
+      for (let i = 1; i <= MAX_OPTIONS; i += 1) {
+        const optionElement = document.getElementById(`opt${i}`);
+        const valueElement = document.getElementById(`val${i}`);
+
+        const name = optionElement.value;
+        const valueKey = valueElement.value;
+
+        if (!name && valueKey === "") {
+          continue;
+        }
+
+        if (!name || valueKey === "") {
+          alert(`옵션 ${i} 입력을 확인해 주세요. (옵션/수치 필요)`);
+          return;
+        }
+
+        const values = OPTION_MAP[name];
+        const weight = values ? values[valueKey] : undefined;
+        if (weight === undefined) {
+          alert(`옵션 ${i}의 수치가 올바르지 않습니다.`);
+          return;
+        }
+
+        usedOptions.push({
+          name,
+          value: Number(valueKey),
+          score: weight
+        });
+      }
+
+      if (usedOptions.length !== MAX_OPTIONS) {
+        alert("옵션은 반드시 4개를 모두 입력해야 합니다.");
+        return;
+      }
+
+      const uniqueOptionCount = new Set(usedOptions.map((item) => item.name)).size;
+      if (uniqueOptionCount !== MAX_OPTIONS) {
+        alert("같은 옵션은 중복 선택할 수 없습니다.");
+        return;
+      }
+
+      for (const pair of MUTUALLY_EXCLUSIVE_PAIRS) {
+        const [first, second] = pair;
+        const hasFirst = usedOptions.some((item) => item.name === first);
+        const hasSecond = usedOptions.some((item) => item.name === second);
+        if (hasFirst && hasSecond) {
+          alert(`해당 옵션은 동시에 선택할 수 없습니다.`);
+          return;
+        }
+      }
+
+      const rawScore = usedOptions.reduce((sum, current) => sum + current.score, 0);
+      const score100 = Math.min(100, Math.round((rawScore / SCORE_BASE) * 100));
+      const grade = getGrade(score100);
+
+      const scoreClass = score100 >= 70 ? "grade good" : "grade bad";
+
+      resultBox.innerHTML = `
+        <p class="score">점수: ${score100}점</p>
+        <p class="${scoreClass}">등급: ${grade}</p>
+      `;
+    }
+
+    function resetInputs() {
+      for (let i = 1; i <= MAX_OPTIONS; i += 1) {
+        document.getElementById(`opt${i}`).value = "";
+        document.getElementById(`val${i}`).value = "";
+      }
+
+      resultBox.innerHTML = `
+        <p class="score">점수: 0점</p>
+        <p class="grade">등급: 계산 대기</p>
+        <p class="sub">옵션을 입력하고 계산 버튼을 눌러 주세요.</p>
+      `;
+    }
+
+    function getDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function getDailyResetKey() {
+      const now = new Date();
+      const resetPoint = new Date(now);
+      resetPoint.setHours(10, 0, 0, 0);
+
+      if (now < resetPoint) {
+        resetPoint.setDate(resetPoint.getDate() - 1);
+      }
+
+      return getDateKey(resetPoint);
+    }
+
+    function getWeeklyResetKey() {
+      const now = new Date();
+      const weeklyReset = new Date(now);
+      const daysSinceThursday = (now.getDay() + 7 - 4) % 7;
+      weeklyReset.setDate(now.getDate() - daysSinceThursday);
+      weeklyReset.setHours(10, 0, 0, 0);
+
+      if (now < weeklyReset) {
+        weeklyReset.setDate(weeklyReset.getDate() - 7);
+      }
+
+      return getDateKey(weeklyReset);
+    }
+
+    function loadDailyQuests() {
+      try {
+        const raw = localStorage.getItem(DAILY_QUESTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+
+        const cleaned = Array.from(new Set(parsed
+          .map((item) => String(item).trim())
+          .filter((item) => item.length > 0)));
+
+        return cleaned;
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveDailyQuests() {
+      try {
+        localStorage.setItem(DAILY_QUESTS_KEY, JSON.stringify(dailyQuests));
+      } catch (error) {
+        // localStorage unavailable: ignore persistence and keep runtime state.
+      }
+    }
+
+    function loadDailyState() {
+      const fallback = new Array(dailyQuests.length).fill(false);
+
+      try {
+        const raw = localStorage.getItem(DAILY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        const todayKey = getDailyResetKey();
+        const todayState = parsed[todayKey];
+
+        if (!Array.isArray(todayState)) {
+          return fallback;
+        }
+
+        const normalized = new Array(dailyQuests.length).fill(false);
+        for (let i = 0; i < dailyQuests.length; i += 1) {
+          normalized[i] = Boolean(todayState[i]);
+        }
+        return normalized;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveDailyState(state) {
+      try {
+        const raw = localStorage.getItem(DAILY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        parsed[getDailyResetKey()] = state;
+        localStorage.setItem(DAILY_STORAGE_KEY, JSON.stringify(parsed));
+      } catch (error) {
+        // localStorage unavailable: ignore persistence and keep runtime state.
+      }
+    }
+
+    function moveArrayItem(array, fromIndex, toIndex) {
+      if (fromIndex === toIndex) {
+        return;
+      }
+
+      const moved = array.splice(fromIndex, 1)[0];
+      array.splice(toIndex, 0, moved);
+    }
+
+    function updateDailyProgress(state) {
+      const completed = state.filter((value) => value).length;
+      dailyProgress.textContent = `진행률: ${completed}/${dailyQuests.length}`;
+    }
+
+    function renderDailyChecklist(state) {
+      dailyQuestList.innerHTML = "";
+      let draggedIndex = -1;
+
+      if (dailyDeleteModeBtn) {
+        dailyDeleteModeBtn.textContent = isDailyDeleteMode ? "완료" : "삭제";
+      }
+
+      if (dailyQuests.length === 0) {
+        const emptyItem = document.createElement("li");
+        emptyItem.className = "empty-quest";
+        emptyItem.textContent = "등록된 일일 퀘스트가 없습니다. 위에서 직접 추가해 주세요.";
+        dailyQuestList.appendChild(emptyItem);
+        updateDailyProgress(state);
+        return;
+      }
+
+      dailyQuests.forEach((questName, index) => {
+        const item = document.createElement("li");
+        item.className = "quest-item";
+        item.draggable = false;
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `daily-quest-${index}`;
+        checkbox.checked = state[index];
+
+        const label = document.createElement("label");
+        label.className = "quest-label";
+        if (state[index]) {
+          item.classList.add("done");
+        }
+        label.htmlFor = checkbox.id;
+        label.textContent = questName;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "quest-delete-btn";
+        deleteBtn.textContent = "삭제";
+        deleteBtn.addEventListener("click", () => {
+          dailyQuests.splice(index, 1);
+          state.splice(index, 1);
+          saveDailyQuests();
+          saveDailyState(state);
+          renderDailyChecklist(state);
+        });
+
+        const tail = document.createElement("div");
+        tail.className = "quest-tail";
+        if (isDailyDeleteMode) {
+          tail.appendChild(deleteBtn);
+        } else {
+          const dragHandle = document.createElement("span");
+          dragHandle.className = "drag-handle";
+          dragHandle.textContent = "≡";
+          dragHandle.draggable = true;
+          dragHandle.addEventListener("dragstart", (event) => {
+            draggedIndex = index;
+            item.classList.add("dragging");
+            if (event.dataTransfer) {
+              event.dataTransfer.setData("text/plain", String(index));
+              event.dataTransfer.effectAllowed = "move";
+            }
+          });
+
+          dragHandle.addEventListener("dragend", () => {
+            draggedIndex = -1;
+            item.classList.remove("dragging");
+            Array.from(dailyQuestList.children).forEach((child) => {
+              child.classList.remove("drag-over");
+            });
+          });
+          tail.appendChild(dragHandle);
+        }
+
+        checkbox.addEventListener("change", () => {
+          state[index] = checkbox.checked;
+          item.classList.toggle("done", checkbox.checked);
+          saveDailyState(state);
+          updateDailyProgress(state);
+        });
+
+        item.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          if (draggedIndex !== -1 && draggedIndex !== index) {
+            item.classList.add("drag-over");
+          }
+        });
+
+        item.addEventListener("dragleave", () => {
+          item.classList.remove("drag-over");
+        });
+
+        item.addEventListener("drop", (event) => {
+          event.preventDefault();
+          item.classList.remove("drag-over");
+          if (draggedIndex < 0 || draggedIndex === index) {
+            return;
+          }
+
+          moveArrayItem(dailyQuests, draggedIndex, index);
+          moveArrayItem(state, draggedIndex, index);
+          saveDailyQuests();
+          saveDailyState(state);
+          renderDailyChecklist(state);
+        });
+
+        item.appendChild(checkbox);
+        item.appendChild(label);
+        item.appendChild(tail);
+        dailyQuestList.appendChild(item);
+      });
+
+      updateDailyProgress(state);
+    }
+
+    function addDailyQuest(state) {
+      const newQuest = dailyQuestInput.value.trim();
+      if (!newQuest) {
+        alert("추가할 퀘스트 이름을 입력해 주세요.");
+        return;
+      }
+
+      if (dailyQuests.includes(newQuest)) {
+        alert("이미 등록된 퀘스트입니다.");
+        return;
+      }
+
+      dailyQuests.push(newQuest);
+      state.push(false);
+      saveDailyQuests();
+      saveDailyState(state);
+      renderDailyChecklist(state);
+      dailyQuestInput.value = "";
+      dailyQuestInput.focus();
+    }
+
+    function initDailyChecklist() {
+      if (!dailyQuestList || !dailyProgress || !dailyQuestInput || !dailyAddBtn) {
+        return;
+      }
+      dailyQuests = bootstrapDefaultQuests(loadDailyQuests(), DEFAULT_DAILY_QUESTS);
+
+      const state = loadDailyState();
+      renderDailyChecklist(state);
+
+      dailyAddBtn.addEventListener("click", () => {
+        addDailyQuest(state);
+      });
+
+      dailyQuestInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          addDailyQuest(state);
+        }
+      });
+
+      dailyDeleteModeBtn.addEventListener("click", () => {
+        isDailyDeleteMode = !isDailyDeleteMode;
+        renderDailyChecklist(state);
+      });
+    }
+
+    function loadWeeklyQuests() {
+      try {
+        const raw = localStorage.getItem(WEEKLY_QUESTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+
+        const cleaned = Array.from(new Set(parsed
+          .map((item) => String(item).trim())
+          .filter((item) => item.length > 0)));
+
+        return cleaned;
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveWeeklyQuests() {
+      try {
+        localStorage.setItem(WEEKLY_QUESTS_KEY, JSON.stringify(weeklyQuests));
+      } catch (error) {
+        // localStorage unavailable: ignore persistence and keep runtime state.
+      }
+    }
+
+    function bootstrapDefaultQuests(quests, defaults) {
+      if (Array.isArray(quests) && quests.length > 0) {
+        return quests;
+      }
+
+      return [...defaults];
+    }
+
+    function loadWeeklyState() {
+      const fallback = new Array(weeklyQuests.length).fill(false);
+
+      try {
+        const raw = localStorage.getItem(WEEKLY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        const weeklyKey = getWeeklyResetKey();
+        const weeklyState = parsed[weeklyKey];
+
+        if (!Array.isArray(weeklyState)) {
+          return fallback;
+        }
+
+        const normalized = new Array(weeklyQuests.length).fill(false);
+        for (let i = 0; i < weeklyQuests.length; i += 1) {
+          normalized[i] = Boolean(weeklyState[i]);
+        }
+        return normalized;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveWeeklyState(state) {
+      try {
+        const raw = localStorage.getItem(WEEKLY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        parsed[getWeeklyResetKey()] = state;
+        localStorage.setItem(WEEKLY_STORAGE_KEY, JSON.stringify(parsed));
+      } catch (error) {
+        // localStorage unavailable: ignore persistence and keep runtime state.
+      }
+    }
+
+    function updateWeeklyProgress(state) {
+      const completed = state.filter((value) => value).length;
+      weeklyProgress.textContent = `진행률: ${completed}/${weeklyQuests.length}`;
+    }
+
+    function renderWeeklyChecklist(state) {
+      weeklyQuestList.innerHTML = "";
+      let draggedIndex = -1;
+
+      if (weeklyDeleteModeBtn) {
+        weeklyDeleteModeBtn.textContent = isWeeklyDeleteMode ? "완료" : "삭제";
+      }
+
+      if (weeklyQuests.length === 0) {
+        const emptyItem = document.createElement("li");
+        emptyItem.className = "empty-quest";
+        emptyItem.textContent = "등록된 주간 퀘스트가 없습니다. 위에서 직접 추가해 주세요.";
+        weeklyQuestList.appendChild(emptyItem);
+        updateWeeklyProgress(state);
+        return;
+      }
+
+      weeklyQuests.forEach((questName, index) => {
+        const item = document.createElement("li");
+        item.className = "quest-item";
+        item.draggable = false;
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `weekly-quest-${index}`;
+        checkbox.checked = state[index];
+
+        const label = document.createElement("label");
+        label.className = "quest-label";
+        if (state[index]) {
+          item.classList.add("done");
+        }
+        label.htmlFor = checkbox.id;
+        label.textContent = questName;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "quest-delete-btn";
+        deleteBtn.textContent = "삭제";
+        deleteBtn.addEventListener("click", () => {
+          weeklyQuests.splice(index, 1);
+          state.splice(index, 1);
+          saveWeeklyQuests();
+          saveWeeklyState(state);
+          renderWeeklyChecklist(state);
+        });
+
+        const tail = document.createElement("div");
+        tail.className = "quest-tail";
+        if (isWeeklyDeleteMode) {
+          tail.appendChild(deleteBtn);
+        } else {
+          const dragHandle = document.createElement("span");
+          dragHandle.className = "drag-handle";
+          dragHandle.textContent = "≡";
+          dragHandle.draggable = true;
+          dragHandle.addEventListener("dragstart", (event) => {
+            draggedIndex = index;
+            item.classList.add("dragging");
+            if (event.dataTransfer) {
+              event.dataTransfer.setData("text/plain", String(index));
+              event.dataTransfer.effectAllowed = "move";
+            }
+          });
+
+          dragHandle.addEventListener("dragend", () => {
+            draggedIndex = -1;
+            item.classList.remove("dragging");
+            Array.from(weeklyQuestList.children).forEach((child) => {
+              child.classList.remove("drag-over");
+            });
+          });
+          tail.appendChild(dragHandle);
+        }
+
+        checkbox.addEventListener("change", () => {
+          state[index] = checkbox.checked;
+          item.classList.toggle("done", checkbox.checked);
+          saveWeeklyState(state);
+          updateWeeklyProgress(state);
+        });
+
+        item.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          if (draggedIndex !== -1 && draggedIndex !== index) {
+            item.classList.add("drag-over");
+          }
+        });
+
+        item.addEventListener("dragleave", () => {
+          item.classList.remove("drag-over");
+        });
+
+        item.addEventListener("drop", (event) => {
+          event.preventDefault();
+          item.classList.remove("drag-over");
+          if (draggedIndex < 0 || draggedIndex === index) {
+            return;
+          }
+
+          moveArrayItem(weeklyQuests, draggedIndex, index);
+          moveArrayItem(state, draggedIndex, index);
+          saveWeeklyQuests();
+          saveWeeklyState(state);
+          renderWeeklyChecklist(state);
+        });
+
+        item.appendChild(checkbox);
+        item.appendChild(label);
+        item.appendChild(tail);
+        weeklyQuestList.appendChild(item);
+      });
+
+      updateWeeklyProgress(state);
+    }
+
+    function addWeeklyQuest(state) {
+      const newQuest = weeklyQuestInput.value.trim();
+      if (!newQuest) {
+        alert("추가할 퀘스트 이름을 입력해 주세요.");
+        return;
+      }
+
+      if (weeklyQuests.includes(newQuest)) {
+        alert("이미 등록된 퀘스트입니다.");
+        return;
+      }
+
+      weeklyQuests.push(newQuest);
+      state.push(false);
+      saveWeeklyQuests();
+      saveWeeklyState(state);
+      renderWeeklyChecklist(state);
+      weeklyQuestInput.value = "";
+      weeklyQuestInput.focus();
+    }
+
+    function initWeeklyChecklist() {
+      if (!weeklyQuestList || !weeklyProgress || !weeklyQuestInput || !weeklyAddBtn) {
+        return;
+      }
+      weeklyQuests = bootstrapDefaultQuests(loadWeeklyQuests(), DEFAULT_WEEKLY_QUESTS);
+
+      const state = loadWeeklyState();
+      renderWeeklyChecklist(state);
+
+      weeklyAddBtn.addEventListener("click", () => {
+        addWeeklyQuest(state);
+      });
+
+      weeklyQuestInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          addWeeklyQuest(state);
+        }
+      });
+
+      weeklyDeleteModeBtn.addEventListener("click", () => {
+        isWeeklyDeleteMode = !isWeeklyDeleteMode;
+        renderWeeklyChecklist(state);
+      });
+    }
+
+    renderRows();
+    initDailyChecklist();
+    initWeeklyChecklist();
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setActiveTab(button.dataset.tab);
+      });
+    });
+
+    calcBtn.addEventListener("click", calculate);
+    resetBtn.addEventListener("click", resetInputs);
+  </script>
+</body>
+</html>
