@@ -706,12 +706,7 @@
     let weeklyQuests = [];
     let isDailyDeleteMode = false;
     let isWeeklyDeleteMode = false;
-    const MUTUALLY_EXCLUSIVE_PAIRS = [
-      ["강수 물리/마법 공격력 %", "물리/마법 공격력 %"],
-      ["강수 물리/마법 공격력 Lv", "물리/마법 공격력 Lv"],
-      ["강수 모든 스킬 데미지", "모든 스킬 데미지 %"],
-      ["강수 크리티컬 데미지", "크리티컬 데미지 %"]
-    ];
+    const MUTUALLY_EXCLUSIVE_PAIRS = [];
 
     function setActiveTab(panelId) {
       tabButtons.forEach((button) => {
@@ -802,7 +797,7 @@
     }
 
     function findConflictOption(optionName, currentIndex) {
-      if (!optionName) {
+      if (!optionName || MUTUALLY_EXCLUSIVE_PAIRS.length === 0) {
         return "";
       }
 
