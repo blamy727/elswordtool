@@ -43,6 +43,14 @@
       gap: 18px;
     }
 
+    .content-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 14px;
+      align-items: start;
+      min-width: 0;
+    }
+
     .hero,
     .panel {
       background: var(--card);
@@ -74,6 +82,7 @@
     .panel {
       padding: 18px;
       animation: rise 0.6s ease-out;
+      min-width: 0;
     }
 
     .tabs {
@@ -81,6 +90,38 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 14px;
+    }
+
+    .tab-panels {
+      position: relative;
+      min-height: 860px;
+    }
+
+    .tab-image-box {
+      border: 1px solid rgba(165, 125, 19, 0.32);
+      border-radius: 14px;
+      background: linear-gradient(145deg, #ffe8a0 0%, #ffd764 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+      padding: 8px;
+      width: 100%;
+      max-width: 100%;
+      height: 690px;
+      aspect-ratio: 14 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: sticky;
+      top: 24px;
+    }
+
+    .tab-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.55);
     }
 
     .tab-btn {
@@ -103,11 +144,19 @@
     }
 
     .tab-panel {
-      display: none;
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
     }
 
     .tab-panel.active {
-      display: block;
+      position: relative;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
       animation: rise 0.25s ease-out;
     }
 
@@ -127,6 +176,7 @@
       display: grid;
       grid-template-columns: 1.3fr 0.75fr;
       gap: 8px;
+      min-width: 0;
     }
 
     .head {
@@ -142,6 +192,7 @@
 
     .control {
       width: 100%;
+      min-width: 0;
       border: 1px solid var(--line);
       border-radius: 12px;
       background: #fff;
@@ -359,6 +410,95 @@
       gap: 8px;
     }
 
+    .doom-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .doom-row {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .doom-row-head {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      justify-items: center;
+      gap: 12px;
+    }
+
+    .doom-row-head .doom-row-title {
+      justify-self: start;
+      align-self: center;
+      display: flex;
+      align-items: center;
+      min-height: 34px;
+      line-height: 1;
+    }
+
+    .doom-stage-select {
+      width: 94px;
+      height: 34px;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .doom-row-title {
+      margin: 0;
+      font-size: 0.97rem;
+      font-weight: 800;
+    }
+
+    .doom-stage-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .doom-stage-label {
+      font-size: 0.9rem;
+      color: #5a575f;
+      font-weight: 700;
+    }
+
+    .doom-result-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .doom-target-wrap {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: minmax(180px, 280px) auto;
+      align-items: center;
+    }
+
+    .doom-check {
+      width: 22px;
+      height: 22px;
+      margin: 0;
+      accent-color: var(--accent-strong);
+      cursor: pointer;
+      flex-shrink: 0;
+      justify-self: center;
+      align-self: center;
+    }
+
     .empty-quest {
       border: 1px dashed var(--line);
       border-radius: 12px;
@@ -367,6 +507,38 @@
       color: #7d7883;
       font-size: 0.92rem;
       text-align: center;
+    }
+
+    .doom-preset-wrap {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .doom-preset-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #514c56;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .doom-preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-strong);
+    }
+
+    .doom-preset-btn.active {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
+      box-shadow: 0 4px 12px rgba(202, 75, 20, 0.24);
     }
 
     @keyframes rise {
@@ -385,8 +557,25 @@
         padding: 14px;
       }
 
+      .content-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .tab-image-box {
+        width: 100%;
+        max-width: 280px;
+        height: auto;
+        aspect-ratio: 14 / 9;
+        justify-self: end;
+        position: static;
+      }
+
       .grid {
         grid-template-columns: 1fr;
+      }
+
+      .tab-panels {
+        min-height: 0;
       }
 
     }
@@ -399,16 +588,19 @@
       <p>게임 편의 도구를 사용할 수 있습니다.</p>
     </section>
 
-    <section class="panel">
-      <div class="tabs" role="tablist" aria-label="엘소드 도구 탭">
-        <button class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="panel-daily" id="tab-daily" data-tab="panel-daily">일일 퀘스트 체크리스트</button>
-        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-weekly" id="tab-weekly" data-tab="panel-weekly">주간 퀘스트 체크리스트</button>
-        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-dragon" id="tab-dragon" data-tab="panel-dragon">사룡무 옵변 점수 계산기</button>
-      </div>
+    <div class="content-wrap">
+      <section class="panel">
+        <div class="tabs" role="tablist" aria-label="엘소드 도구 탭">
+          <button class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="panel-daily" id="tab-daily" data-tab="panel-daily">일일 퀘스트 체크리스트</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-weekly" id="tab-weekly" data-tab="panel-weekly">주간 퀘스트 체크리스트</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-dragon" id="tab-dragon" data-tab="panel-dragon">사룡무 옵변 점수 계산기</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-doom" id="tab-doom" data-tab="panel-doom">사룡의 심장 계산기</button>
+        </div>
 
+      <div class="tab-panels">
       <div class="tab-panel active" role="tabpanel" aria-labelledby="tab-daily" id="panel-daily">
         <h2 class="tool-title">일일 퀘스트 체크리스트</h2>
-        <p class="sub">매일 오전 10시 기준으로 체크가 초기화됩니다.</p>
+        <p class="sub" id="dailyResetTimer">초기화까지 00:00:00</p>
         <section class="checklist-wrap">
           <div class="daily-meta">
             <span class="daily-chip" id="dailyProgress">진행률: 0/0</span>
@@ -426,7 +618,7 @@
 
       <div class="tab-panel" role="tabpanel" aria-labelledby="tab-weekly" id="panel-weekly">
         <h2 class="tool-title">주간 퀘스트 체크리스트</h2>
-        <p class="sub">매주 목요일 오전 10시 기준으로 체크가 초기화됩니다.</p>
+        <p class="sub" id="weeklyResetTimer">초기화까지 00:00:00</p>
         <section class="checklist-wrap">
           <div class="daily-meta">
             <span class="daily-chip" id="weeklyProgress">진행률: 0/0</span>
@@ -462,7 +654,40 @@
           <p class="sub">옵션을 입력하고 계산 버튼을 눌러 주세요.</p>
         </div>
       </div>
-    </section>
+
+      <div class="tab-panel" role="tabpanel" aria-labelledby="tab-doom" id="panel-doom">
+        <h2 class="tool-title">사룡의 심장 계산기</h2>
+        <p class="sub">모든 보상은 3단계가 기준이며, 매주 동일하게 클리어한다는 기준으로 작성되었습니다.</p>
+
+        <div class="doom-grid" id="doomGrid"></div>
+
+        <div class="doom-preset-wrap">
+          <span class="sub" style="margin:0;align-self:center;">목표 해방:</span>
+          <button class="doom-preset-btn" type="button" data-preset="120">4해방</button>
+          <button class="doom-preset-btn" type="button" data-preset="240">5해방</button>
+        </div>
+
+        <div class="doom-target-wrap">
+          <input class="control" id="doomTargetInput" type="number" min="1" step="1" placeholder="필요한 사룡의 심장 개수 입력">
+          <p class="sub">필요 수량을 입력하면 현재 설정 기준으로 필요한 주차를 계산합니다.</p>
+        </div>
+
+        <div class="result" id="doomResultBox">
+          <p class="score">주간 획득 사룡의 심장 파편: 0개</p>
+          <p class="grade">필요한 사룡의 심장 파편: -</p>
+        </div>
+      </div>
+      </section>
+
+      <div class="tab-image-box">
+        <img
+          id="tabMainImage"
+          class="tab-image"
+          src="image/dailyquest.png"
+          alt="현재 탭 이미지"
+        >
+      </div>
+    </div>
   </main>
 
   <script>
@@ -651,20 +876,28 @@
 
     const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
     const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
+    const tabMainImage = document.getElementById("tabMainImage");
+    const tabImageBox = document.querySelector(".tab-image-box");
+    const dragonPanel = document.getElementById("panel-dragon");
     const optionGrid = document.getElementById("optionGrid");
     const resultBox = document.getElementById("resultBox");
     const calcBtn = document.getElementById("calcBtn");
     const resetBtn = document.getElementById("resetBtn");
     const dailyProgress = document.getElementById("dailyProgress");
+    const dailyResetTimer = document.getElementById("dailyResetTimer");
     const dailyQuestList = document.getElementById("dailyQuestList");
     const dailyQuestInput = document.getElementById("dailyQuestInput");
     const dailyAddBtn = document.getElementById("dailyAddBtn");
     const dailyDeleteModeBtn = document.getElementById("dailyDeleteModeBtn");
     const weeklyProgress = document.getElementById("weeklyProgress");
+    const weeklyResetTimer = document.getElementById("weeklyResetTimer");
     const weeklyQuestList = document.getElementById("weeklyQuestList");
     const weeklyQuestInput = document.getElementById("weeklyQuestInput");
     const weeklyAddBtn = document.getElementById("weeklyAddBtn");
     const weeklyDeleteModeBtn = document.getElementById("weeklyDeleteModeBtn");
+    const doomGrid = document.getElementById("doomGrid");
+    const doomTargetInput = document.getElementById("doomTargetInput");
+    const doomResultBox = document.getElementById("doomResultBox");
     const SCORE_BASE = 33;
     const DAILY_STORAGE_KEY = "elswordDailyChecklistState";
     const DAILY_QUESTS_KEY = "elswordDailyChecklistQuests";
@@ -702,11 +935,30 @@
       "헤니르의 시공 - 데빌 오브 카오스 클리어",
       "헤니르의 시공 - 하이엔트로피 클리어"
     ];
+    const DOOM_DUNGEONS = [
+      { key: "prophecy", name: "예언의 초석", rewardByStage: true },
+      { key: "resetRoom", name: "나이트메어 : 리셋 룸", rewardByStage: true },
+      { key: "audience", name: "여왕의 알현실", rewardByStage: true },
+      { key: "tower", name: "영락의 탑 : 멸", rewardByStage: true }
+    ];
     let dailyQuests = [];
     let weeklyQuests = [];
     let isDailyDeleteMode = false;
     let isWeeklyDeleteMode = false;
+    const doomActivePresets = new Set();
     const MUTUALLY_EXCLUSIVE_PAIRS = [];
+    const TAB_IMAGE_SOURCES = {
+      "panel-daily": "image/dailyquest.png",
+      "panel-weekly": "image/weeklyquest.png",
+      "panel-dragon": "image/movegod_2.png",
+      "panel-doom": "image/weapon_percent.png"
+    };
+    const DRAGON_GRADE_IMAGE_SOURCES = {
+      "돌려": "image/movegod_1.png",
+      "돌리는게 좋음": "image/movegod_2.png",
+      "준종결 (모듈작)": "image/movegod_2.png",
+      "종결": "image/movegod_3.png"
+    };
 
     function setActiveTab(panelId) {
       tabButtons.forEach((button) => {
@@ -718,6 +970,10 @@
       tabPanels.forEach((panel) => {
         panel.classList.toggle("active", panel.id === panelId);
       });
+
+      if (tabMainImage && TAB_IMAGE_SOURCES[panelId]) {
+        tabMainImage.src = TAB_IMAGE_SOURCES[panelId];
+      }
     }
 
     function createOptionSelect(index) {
@@ -932,6 +1188,11 @@
         <p class="score">점수: ${score100}점</p>
         <p class="${scoreClass}">등급: ${grade}</p>
       `;
+
+      const activePanel = document.querySelector(".tab-panel.active");
+      if (activePanel && activePanel.id === "panel-dragon" && tabMainImage) {
+        tabMainImage.src = DRAGON_GRADE_IMAGE_SOURCES[grade] || TAB_IMAGE_SOURCES["panel-dragon"];
+      }
     }
 
     function resetInputs() {
@@ -945,6 +1206,11 @@
         <p class="grade">등급: 계산 대기</p>
         <p class="sub">옵션을 입력하고 계산 버튼을 눌러 주세요.</p>
       `;
+
+      const activePanel = document.querySelector(".tab-panel.active");
+      if (activePanel && activePanel.id === "panel-dragon" && tabMainImage) {
+        tabMainImage.src = TAB_IMAGE_SOURCES["panel-dragon"];
+      }
     }
 
     function getDateKey(date) {
@@ -952,6 +1218,54 @@
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
+    }
+
+    function formatRemainingTime(milliseconds) {
+      const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+      const seconds = String(totalSeconds % 60).padStart(2, "0");
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function getNextDailyResetTime() {
+      const now = new Date();
+      const nextReset = new Date(now);
+      nextReset.setHours(10, 0, 0, 0);
+
+      if (now >= nextReset) {
+        nextReset.setDate(nextReset.getDate() + 1);
+      }
+
+      return nextReset;
+    }
+
+    function getNextWeeklyResetTime() {
+      const now = new Date();
+      const nextReset = new Date(now);
+      const daysUntilThursday = (4 - now.getDay() + 7) % 7;
+      nextReset.setDate(now.getDate() + daysUntilThursday);
+      nextReset.setHours(10, 0, 0, 0);
+
+      if (daysUntilThursday === 0 && now >= nextReset) {
+        nextReset.setDate(nextReset.getDate() + 7);
+      }
+
+      return nextReset;
+    }
+
+    function updateResetTimers() {
+      const now = new Date();
+
+      if (dailyResetTimer) {
+        const dailyRemaining = getNextDailyResetTime().getTime() - now.getTime();
+        dailyResetTimer.textContent = `초기화까지 ${formatRemainingTime(dailyRemaining)}`;
+      }
+
+      if (weeklyResetTimer) {
+        const weeklyRemaining = getNextWeeklyResetTime().getTime() - now.getTime();
+        weeklyResetTimer.textContent = `초기화까지 ${formatRemainingTime(weeklyRemaining)}`;
+      }
     }
 
     function getDailyResetKey() {
@@ -1451,9 +1765,134 @@
       });
     }
 
+    function createDoomDungeonRow(dungeon) {
+      const row = document.createElement("div");
+      row.className = "doom-row";
+
+      const head = document.createElement("div");
+      head.className = "doom-row-head";
+
+      const title = document.createElement("h3");
+      title.className = "doom-row-title";
+      title.textContent = dungeon.name;
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = `doom-clear-${dungeon.key}`;
+      checkbox.className = "doom-check";
+      checkbox.checked = true;
+
+      const stageSelect = document.createElement("select");
+      stageSelect.id = `doom-stage-${dungeon.key}`;
+      stageSelect.className = "doom-stage-select";
+      ["1", "2", "3"].forEach((stage) => {
+        const option = document.createElement("option");
+        option.value = stage;
+        option.textContent = `${stage}단계`;
+        if (stage === "3") {
+          option.selected = true;
+        }
+        stageSelect.appendChild(option);
+      });
+
+      const stageWrap = document.createElement("div");
+      stageWrap.className = "doom-stage-wrap";
+
+      const fixedReward = document.createElement("span");
+      fixedReward.className = "doom-stage-label";
+      stageWrap.appendChild(fixedReward);
+
+      head.appendChild(title);
+      head.appendChild(stageSelect);
+      head.appendChild(checkbox);
+      row.appendChild(head);
+      row.appendChild(stageWrap);
+
+      return row;
+    }
+
+    function renderDoomCalculator() {
+      if (!doomGrid) {
+        return;
+      }
+
+      doomGrid.innerHTML = "";
+      DOOM_DUNGEONS.forEach((dungeon) => {
+        doomGrid.appendChild(createDoomDungeonRow(dungeon));
+      });
+    }
+
+    function calculateDoomRewards() {
+      let totalFragments = 0;
+
+      DOOM_DUNGEONS.forEach((dungeon) => {
+        const clearBox = document.getElementById(`doom-clear-${dungeon.key}`);
+        if (!clearBox || !clearBox.checked) {
+          return;
+        }
+
+        const stageElement = document.getElementById(`doom-stage-${dungeon.key}`);
+        const stage = stageElement ? Number(stageElement.value) : 3;
+        const reward = Math.min(3, Math.max(1, stage));
+
+        totalFragments += reward;
+      });
+
+      const inputValue = doomTargetInput ? (Number(doomTargetInput.value) || 0) : 0;
+      let presetTotal = 0;
+      doomActivePresets.forEach((v) => { presetTotal += v; });
+      const targetValue = presetTotal + inputValue;
+      const hasValidTarget = targetValue > 0;
+      const requiredWeeks = hasValidTarget && totalFragments > 0
+        ? Math.ceil(targetValue / totalFragments)
+        : 0;
+
+      const breakdownParts = [];
+      const breakdownStr = breakdownParts.length > 1 ? ` (${breakdownParts.join(" + ")})` : "";
+
+      doomResultBox.innerHTML = `
+        <p class="score">주간 획득 사룡의 심장 파편: ${totalFragments}개</p>
+        <p class="grade">필요한 사룡의 심장 파편: ${hasValidTarget ? `${targetValue}개${breakdownStr} → ${requiredWeeks}주 소요` : "-"}</p>
+      `;
+    }
+
+    function applyDoomSequentialRule(changedIndex) {
+      const currentDungeon = DOOM_DUNGEONS[changedIndex];
+      if (!currentDungeon) {
+        return;
+      }
+
+      const currentBox = document.getElementById(`doom-clear-${currentDungeon.key}`);
+      if (!currentBox) {
+        return;
+      }
+
+      if (currentBox.checked) {
+        for (let i = 0; i < changedIndex; i += 1) {
+          const prevDungeon = DOOM_DUNGEONS[i];
+          const prevBox = document.getElementById(`doom-clear-${prevDungeon.key}`);
+          if (prevBox) {
+            prevBox.checked = true;
+          }
+        }
+      } else {
+        for (let i = changedIndex + 1; i < DOOM_DUNGEONS.length; i += 1) {
+          const nextDungeon = DOOM_DUNGEONS[i];
+          const nextBox = document.getElementById(`doom-clear-${nextDungeon.key}`);
+          if (nextBox) {
+            nextBox.checked = false;
+          }
+        }
+      }
+    }
+
     renderRows();
     initDailyChecklist();
     initWeeklyChecklist();
+    renderDoomCalculator();
+    calculateDoomRewards();
+    updateResetTimers();
+    setInterval(updateResetTimers, 1000);
     tabButtons.forEach((button) => {
       button.addEventListener("click", () => {
         setActiveTab(button.dataset.tab);
@@ -1462,6 +1901,36 @@
 
     calcBtn.addEventListener("click", calculate);
     resetBtn.addEventListener("click", resetInputs);
+    if (doomTargetInput) {
+      doomTargetInput.addEventListener("input", calculateDoomRewards);
+    }
+
+    document.querySelectorAll(".doom-preset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const value = Number(btn.dataset.preset);
+        if (btn.classList.contains("active")) {
+          btn.classList.remove("active");
+          doomActivePresets.delete(value);
+        } else {
+          btn.classList.add("active");
+          doomActivePresets.add(value);
+        }
+        calculateDoomRewards();
+      });
+    });
+    DOOM_DUNGEONS.forEach((dungeon, index) => {
+      const clearBox = document.getElementById(`doom-clear-${dungeon.key}`);
+      const stageElement = document.getElementById(`doom-stage-${dungeon.key}`);
+      if (clearBox) {
+        clearBox.addEventListener("change", () => {
+          applyDoomSequentialRule(index);
+          calculateDoomRewards();
+        });
+      }
+      if (stageElement) {
+        stageElement.addEventListener("change", calculateDoomRewards);
+      }
+    });
   </script>
 </body>
 </html>
