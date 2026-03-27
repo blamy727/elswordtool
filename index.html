@@ -541,6 +541,46 @@
       box-shadow: 0 4px 12px rgba(202, 75, 20, 0.24);
     }
 
+    .notify-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 13px 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+      transform: translateY(-100%);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
+      pointer-events: none;
+    }
+
+    .notify-bar.visible {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .creator-mark {
+      position: fixed;
+      right: 14px;
+      bottom: 10px;
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: rgba(35, 33, 39, 0.4);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+      user-select: none;
+      pointer-events: none;
+      z-index: 6;
+    }
+
     @keyframes rise {
       from {
         opacity: 0;
@@ -576,6 +616,12 @@
 
       .tab-panels {
         min-height: 0;
+      }
+
+      .creator-mark {
+        right: 10px;
+        bottom: 8px;
+        font-size: 11px;
       }
 
     }
@@ -689,8 +735,21 @@
       </div>
     </div>
   </main>
+  <div class="notify-bar" id="notifyBar" aria-live="assertive"></div>
 
   <script>
+    const notifyBar = document.getElementById('notifyBar');
+    let notifyTimer = null;
+
+    function showNotify(message) {
+      clearTimeout(notifyTimer);
+      notifyBar.textContent = message;
+      notifyBar.classList.add('visible');
+      notifyTimer = setTimeout(() => {
+        notifyBar.classList.remove('visible');
+      }, 2800);
+    }
+
     const OPTION_TABLE = [
       {
         name: "강수 물리/마법 공격력 %",
@@ -1087,7 +1146,7 @@
 
         opt.addEventListener("change", () => {
           if (isOptionSelectedElsewhere(opt.value, i)) {
-            alert("같은 옵션은 중복 선택할 수 없습니다.");
+            showNotify("같은 옵션은 중복 선택할 수 없습니다.");
             opt.value = "";
             populateValueSelect("", val);
             return;
@@ -1095,7 +1154,7 @@
 
           const conflictOption = findConflictOption(opt.value, i);
           if (conflictOption) {
-            alert(`그 옵션은 함께 선택할 수 없습니다.`);
+            showNotify("그 옵션은 함께 선택할 수 없습니다.");
             opt.value = "";
             populateValueSelect("", val);
             return;
@@ -1139,14 +1198,14 @@
         }
 
         if (!name || valueKey === "") {
-          alert(`옵션 ${i} 입력을 확인해 주세요. (옵션/수치 필요)`);
+          showNotify(`옵션 ${i} 입력을 확인해 주세요. (옵션/수치 필요)`);
           return;
         }
 
         const values = OPTION_MAP[name];
         const weight = values ? values[valueKey] : undefined;
         if (weight === undefined) {
-          alert(`옵션 ${i}의 수치가 올바르지 않습니다.`);
+          showNotify(`옵션 ${i}의 수치가 올바르지 않습니다.`);
           return;
         }
 
@@ -1158,13 +1217,13 @@
       }
 
       if (usedOptions.length !== MAX_OPTIONS) {
-        alert("옵션은 반드시 4개를 모두 입력해야 합니다.");
+        showNotify("옵션은 반드시 4개를 모두 입력해야 합니다.");
         return;
       }
 
       const uniqueOptionCount = new Set(usedOptions.map((item) => item.name)).size;
       if (uniqueOptionCount !== MAX_OPTIONS) {
-        alert("같은 옵션은 중복 선택할 수 없습니다.");
+        showNotify("같은 옵션은 중복 선택할 수 없습니다.");
         return;
       }
 
@@ -1173,7 +1232,7 @@
         const hasFirst = usedOptions.some((item) => item.name === first);
         const hasSecond = usedOptions.some((item) => item.name === second);
         if (hasFirst && hasSecond) {
-          alert(`해당 옵션은 동시에 선택할 수 없습니다.`);
+          showNotify("해당 옵션은 동시에 선택할 수 없습니다.");
           return;
         }
       }
@@ -1487,12 +1546,12 @@
     function addDailyQuest(state) {
       const newQuest = dailyQuestInput.value.trim();
       if (!newQuest) {
-        alert("추가할 퀘스트 이름을 입력해 주세요.");
+        showNotify("추가할 퀘스트 이름을 입력해 주세요.");
         return;
       }
 
       if (dailyQuests.includes(newQuest)) {
-        alert("이미 등록된 퀘스트입니다.");
+        showNotify("이미 등록된 퀘스트입니다.");
         return;
       }
 
@@ -1722,12 +1781,12 @@
     function addWeeklyQuest(state) {
       const newQuest = weeklyQuestInput.value.trim();
       if (!newQuest) {
-        alert("추가할 퀘스트 이름을 입력해 주세요.");
+        showNotify("추가할 퀘스트 이름을 입력해 주세요.");
         return;
       }
 
       if (weeklyQuests.includes(newQuest)) {
-        alert("이미 등록된 퀘스트입니다.");
+        showNotify("이미 등록된 퀘스트입니다.");
         return;
       }
 
