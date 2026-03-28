@@ -1216,13 +1216,13 @@
         });
       }
 
-      if (usedOptions.length !== MAX_OPTIONS) {
-        showNotify("옵션은 반드시 4개를 모두 입력해야 합니다.");
+      if (usedOptions.length === 0) {
+        showNotify("최소 1개 이상의 옵션을 입력해 주세요.");
         return;
       }
 
       const uniqueOptionCount = new Set(usedOptions.map((item) => item.name)).size;
-      if (uniqueOptionCount !== MAX_OPTIONS) {
+      if (uniqueOptionCount !== usedOptions.length) {
         showNotify("같은 옵션은 중복 선택할 수 없습니다.");
         return;
       }
