@@ -541,6 +541,99 @@
       box-shadow: 0 4px 12px rgba(202, 75, 20, 0.24);
     }
 
+    .alchemy-materials {
+      display: grid;
+      gap: 6px;
+    }
+
+    .alchemy-mat-header {
+      display: grid;
+      grid-template-columns: 1.2fr 0.6fr 1fr 40px;
+      gap: 8px;
+    }
+
+    .alchemy-mat-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.6fr 1fr 40px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .alchemy-mat-row .control {
+      min-width: 0;
+    }
+
+    .alchemy-mat-remove {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #e4d6cd;
+      background: #fff6f2;
+      color: #aa3a1f;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .alchemy-mat-remove:hover {
+      filter: brightness(0.96);
+    }
+
+    .alchemy-product-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 12px;
+      align-items: center;
+    }
+
+    .alchemy-product-grid .head {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .alchemy-breakdown {
+      margin: 10px 0 0;
+      padding-left: 0;
+      list-style: none;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #5a575f;
+    }
+
+    .alchemy-breakdown li {
+      padding: 2px 0;
+    }
+
+    .alchemy-breakdown li::before {
+      content: "·";
+      margin-right: 6px;
+      font-weight: 900;
+    }
+
+    .alchemy-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .alchemy-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-strong);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .alchemy-toggle-label {
+      font-size: 0.92rem;
+      color: #5a575f;
+    }
+
     .notify-bar {
       position: fixed;
       top: 0;
@@ -641,6 +734,7 @@
           <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-weekly" id="tab-weekly" data-tab="panel-weekly">주간 퀘스트 체크리스트</button>
           <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-dragon" id="tab-dragon" data-tab="panel-dragon">사룡무 옵변 점수 계산기</button>
           <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-doom" id="tab-doom" data-tab="panel-doom">사룡의 심장 계산기</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-alchemy" id="tab-alchemy" data-tab="panel-alchemy">연금술 효율 계산기</button>
         </div>
 
       <div class="tab-panels">
@@ -721,6 +815,54 @@
         <div class="result" id="doomResultBox">
           <p class="score">주간 획득 사룡의 심장 파편: 0개</p>
           <p class="grade">필요한 사룡의 심장 파편: -</p>
+        </div>
+      </div>
+      <div class="tab-panel" role="tabpanel" aria-labelledby="tab-alchemy" id="panel-alchemy">
+        <h2 class="tool-title">연금술 효율 계산기</h2>
+        <p class="sub">레시피를 선택하거나 직접 재료를 입력하고, 게시판가 기준 수익을 계산합니다.</p>
+
+        <h3 class="section-title">레시피 선택</h3>
+        <select class="control" id="alchemyRecipeSelect">
+          <option value="">직접 입력</option>
+        </select>
+
+        <h3 class="section-title" style="margin-top:14px;">재료 목록</h3>
+        <div class="alchemy-materials" id="alchemyMaterials">
+          <div class="alchemy-mat-header">
+            <span class="head">재료명</span>
+            <span class="head">수량</span>
+            <span class="head">게시판가 (ED)</span>
+            <span class="head"></span>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:10px;">
+          <button class="btn btn-secondary" id="alchemyAddMatBtn" type="button">재료 추가</button>
+        </div>
+
+        <h3 class="section-title" style="margin-top:18px;">완성품 정보</h3>
+        <div class="alchemy-product-grid">
+          <label class="head" for="alchemyProductPrice">게시판가 (ED)</label>
+          <input class="control" id="alchemyProductPrice" type="number" min="0" step="1" placeholder="완성품 판매가">
+          <label class="head" for="alchemyCraftFee">제작 수수료 (ED)</label>
+          <input class="control" id="alchemyCraftFee" type="number" min="0" step="1" value="0" placeholder="제작 수수료">
+          <label class="head" for="alchemyCraftCount">제작 개수</label>
+          <input class="control" id="alchemyCraftCount" type="number" min="1" step="1" value="1" placeholder="제작할 횟수">
+          <label class="head" for="alchemyUltimateTruth">궁극의 진리</label>
+          <label class="alchemy-toggle">
+            <input type="checkbox" id="alchemyUltimateTruth">
+            <span class="alchemy-toggle-label"></span>
+          </label>
+        </div>
+
+        <div class="actions" style="margin-top:14px;">
+          <button class="btn btn-primary" id="alchemyCalcBtn" type="button">효율 계산</button>
+          <button class="btn btn-secondary" id="alchemyResetBtn" type="button">초기화</button>
+        </div>
+
+        <div class="result" id="alchemyResultBox">
+          <p class="score">기대 수익: -</p>
+          <p class="grade">효율: 계산 대기</p>
+          <p class="sub">재료와 완성품 정보를 입력 후 계산 버튼을 눌러 주세요.</p>
         </div>
       </div>
       </section>
@@ -1010,7 +1152,8 @@
       "panel-daily": "image/dailyquest.png",
       "panel-weekly": "image/weeklyquest.png",
       "panel-dragon": "image/movegod_2.png",
-      "panel-doom": "image/weapon_percent.png"
+      "panel-doom": "image/weapon_percent.png",
+      "panel-alchemy": "image/weapon_percent.png"
     };
     const DRAGON_GRADE_IMAGE_SOURCES = {
       "돌려": "image/movegod_1.png",
@@ -1944,6 +2087,266 @@
         }
       }
     }
+
+    /* ── 연금술 레시피 데이터 ── */
+    const ALCHEMY_RECIPES = [
+      // { name: "완성품 이름", craftFee: 0, materials: [{ name: "재료1", qty: 5 }, { name: "재료2", qty: 3 }] },
+      { name: "몬스터 카드-굉빙의 베르드", craftFee: 22600, materials: [{ name: "응축된 엘릭서", qty: 5 }, { name: "마법의 결정", qty: 15 }, { name: "결계의 파편", qty: 5 }]},
+      { name: "몬스터 카드-카리스", craftFee: 27000, materials: [{ name: "응축된 엘릭서", qty: 5 }, { name: "마법의 결정", qty: 15 }, { name: "결계의 파편", qty: 5 }]},
+      { name: "에픽NPC 카드-하얀거신 헬퍼트", craftFee: 31600, materials: [{ name: "응축된 엘릭서", qty: 5 }, { name: "마법의 결정", qty: 15 }, { name: "결계의 파편", qty: 5 }]},
+      { name: "상급 소생의 포션", craftFee: 1000, materials: [{ name: "하급 소생의 포션", qty: 1 }, { name: "중급 소생의 포션", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 5 }]},
+      { name: "거인의 돌사과", craftFee: 2800, materials: [{ name: "거인의 사과", qty: 1 }, { name: "돌사과", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 5 }]},
+      { name: "상급 활력의 포션", craftFee: 5200, materials: [{ name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 5 }]},
+      { name: "초인의 유기농 사과", craftFee: 8000, materials: [{ name: "초인의 사과", qty: 1 }, { name: "유기농 사과", qty: 1 }, { name: "응축된 엘릭서", qty: 4 }, { name: "마법의 결정", qty: 5 }]},
+      { name: "질풍의 안드로메다 사과", craftFee: 14700, materials: [{ name: "질풍의 사과", qty: 1 }, { name: "안드로메다 사과", qty: 1 }, { name: "응축된 엘릭서", qty: 4 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "투지의 물약", craftFee: 31600, materials: [{ name: "상급 활력의 포션", qty: 3 }, { name: "응축된 엘릭서", qty: 20 }, { name: "마법의 결정", qty: 50 }]},
+      { name: "벤투스의 날개 (영약)", craftFee: 22600, materials: [{ name: "축복받은 벤투스의 날개깃 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 15 }]},
+      { name: "로쏘의 대화륜 (영약)", craftFee: 27000, materials: [{ name: "축복받은 로쏘의 화염고리 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 15 }]},
+      { name: "추적자의 광기 (영약)", craftFee: 31600, materials: [{ name: "축복받은 추적자의 혼 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 15 }]},
+      { name: "축복받은 벤투스의 날개깃 (영약)", craftFee: 1000, materials: [{ name: "벤투스의 날개깃", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "축복받은 데니프의 얼음 구슬 (영약)", craftFee: 2800, materials: [{ name: "데니프의 얼음 구슬 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "축복받은 로쏘의 화염고리 (영약)", craftFee: 2800, materials: [{ name: "로쏘의 화염고리 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "축복받은 이글이글 폭약 (영약)", craftFee: 5200, materials: [{ name: "이글이글 폭약 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "축복받은 거인화 물약 (영약)", craftFee: 8000, materials: [{ name: "거인화 물약 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "축복받은 거대손 물약 (영약)", craftFee: 8000, materials: [{ name: "거대손 물약 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "축복받은 추적자의 혼 (영약)", craftFee: 14700, materials: [{ name: "추적자의 혼 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "축복받은 아이 요정 요람 (영약)", craftFee: 18500, materials: [{ name: "아기 요정 요람 (영약)", qty: 1 }, { name: "응축된 엘릭서", qty: 6 }, { name: "마법의 결정", qty: 10 }]},
+      { name: "제한 소환서 카드팩-고대 나소드 공주 애플", craftFee: 2800, materials: [{ name: "에픽NPC카드 '애플'", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "제한 소환서 카드팩-푸른 숲의 라임", craftFee: 5200, materials: [{ name: "에픽NPC카드 '라임'", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "제한 소환서 카드팩-근위대장 얼음 공주 노아", craftFee: 8000, materials: [{ name: "에픽NPC카드 '노아'", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "제한 소환서 카드팩-고통의 군주 발락", craftFee: 11200, materials: [{ name: "에픽NPC카드 '발락'", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "제한 소환서 카드팩-Code:Q-Proto_00", craftFee: 18500, materials: [{ name: "에픽NPC카드 '코드:Q-Proto_00'", qty: 1 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "상급 마나포션 주머니 (20개)", craftFee: 11200, materials: [{ name: "중급 마나포션", qty: 5 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "최상급 마나포션 주머니 (20개)", craftFee: 18500, materials: [{ name: "상급 마나포션", qty: 3 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 15 }]},
+      { name: "대천사의 축복 주머니 (10개)", craftFee: 572600, materials: [{ name: "응축된 엘릭서", qty: 5 }, { name: "마법의 결정", qty: 50 }]},
+      { name: "마나 에릭실 주머니 (20개)", craftFee: 27000, materials: [{ name: "MP 최상급 회복약", qty: 5 }, { name: "응축된 엘릭서", qty: 5 }, { name: "마법의 결정", qty: 50 }]},
+      { name: "농축된 엘의 정수 주머니 (20개)", craftFee: 31600, materials: [{ name: "엘의 정수", qty: 10 }, { name: "응축된 엘릭서", qty: 10 }, { name: "마법의 결정", qty: 100 }]},
+      { name: "엘의 정수 주머니 (20개)", craftFee: 11200, materials: [{ name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 30 }]},
+      { name: "HP 최상급 회복약 주머니 (20개)", craftFee: 18500, materials: [{ name: "HP 상급 회복약", qty: 5 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "MP 최상급 회복약 주머니 (20개)", craftFee: 18500, materials: [{ name: "MP 상급 회복약", qty: 5 }, { name: "응축된 엘릭서", qty: 3 }, { name: "마법의 결정", qty: 20 }]},
+      { name: "적응의 영약", craftFee: 5200, materials: [{ name: "응축된 엘릭서", qty: 6 }, { name: "마계의 기운", qty: 10 }, { name: "마법의 결정", qty: 10 }]}
+    ];
+
+    const alchemyRecipeSelect = document.getElementById("alchemyRecipeSelect");
+    const alchemyMaterials = document.getElementById("alchemyMaterials");
+    const alchemyAddMatBtn = document.getElementById("alchemyAddMatBtn");
+    const alchemyCalcBtn = document.getElementById("alchemyCalcBtn");
+    const alchemyResetBtn = document.getElementById("alchemyResetBtn");
+    const alchemyProductPrice = document.getElementById("alchemyProductPrice");
+    const alchemyCraftFee = document.getElementById("alchemyCraftFee");
+    const alchemyCraftCount = document.getElementById("alchemyCraftCount");
+    const alchemyUltimateTruth = document.getElementById("alchemyUltimateTruth");
+    const alchemyResultBox = document.getElementById("alchemyResultBox");
+    let alchemyMatId = 0;
+
+    function populateAlchemyRecipeSelect() {
+      ALCHEMY_RECIPES.forEach((recipe, index) => {
+        const option = document.createElement("option");
+        option.value = String(index);
+        option.textContent = recipe.name;
+        alchemyRecipeSelect.appendChild(option);
+      });
+    }
+
+    function clearAlchemyMaterials() {
+      const rows = alchemyMaterials.querySelectorAll(".alchemy-mat-row");
+      rows.forEach((r) => r.remove());
+      alchemyMatId = 0;
+    }
+
+    function addAlchemyMaterial(name, qty, locked) {
+      alchemyMatId += 1;
+      const id = alchemyMatId;
+      const row = document.createElement("div");
+      row.className = "alchemy-mat-row";
+      row.id = `alchemy-mat-${id}`;
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.className = "control";
+      nameInput.placeholder = "재료명";
+      nameInput.id = `alchemy-mat-name-${id}`;
+      if (name) {
+        nameInput.value = name;
+        if (locked) nameInput.readOnly = true;
+      }
+
+      const qtyInput = document.createElement("input");
+      qtyInput.type = "number";
+      qtyInput.className = "control";
+      qtyInput.min = "1";
+      qtyInput.step = "1";
+      qtyInput.value = qty || "1";
+      qtyInput.placeholder = "수량";
+      qtyInput.id = `alchemy-mat-qty-${id}`;
+      if (locked) qtyInput.readOnly = true;
+
+      const priceInput = document.createElement("input");
+      priceInput.type = "number";
+      priceInput.className = "control";
+      priceInput.min = "0";
+      priceInput.step = "1";
+      priceInput.placeholder = "게시판가";
+      priceInput.id = `alchemy-mat-price-${id}`;
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "alchemy-mat-remove";
+      removeBtn.textContent = "×";
+      removeBtn.addEventListener("click", () => {
+        row.remove();
+      });
+
+      row.appendChild(nameInput);
+      row.appendChild(qtyInput);
+      row.appendChild(priceInput);
+      row.appendChild(removeBtn);
+      alchemyMaterials.appendChild(row);
+      priceInput.focus();
+    }
+
+    function applyAlchemyRecipe(index) {
+      clearAlchemyMaterials();
+      if (index === "" || index === undefined) {
+        addAlchemyMaterial();
+        return;
+      }
+
+      const recipe = ALCHEMY_RECIPES[Number(index)];
+      if (!recipe) {
+        addAlchemyMaterial();
+        return;
+      }
+
+      recipe.materials.forEach((mat) => {
+        addAlchemyMaterial(mat.name, String(mat.qty), true);
+      });
+      alchemyCraftFee.value = String(recipe.craftFee || 0);
+    }
+
+    function formatED(value) {
+      if (Math.abs(value) >= 1e8) {
+        return (value / 1e8).toFixed(2) + "억 ED";
+      }
+      if (Math.abs(value) >= 1e4) {
+        return (value / 1e4).toFixed(1) + "만 ED";
+      }
+      return value.toLocaleString() + " ED";
+    }
+
+    function calculateAlchemy() {
+      const rows = alchemyMaterials.querySelectorAll(".alchemy-mat-row");
+      if (rows.length === 0) {
+        showNotify("재료를 1개 이상 추가해 주세요.");
+        return;
+      }
+
+      const materials = [];
+      let totalMatCostPerCraft = 0;
+
+      for (const row of rows) {
+        const nameEl = row.querySelector("input[type='text']");
+        const qtyEl = row.querySelectorAll("input[type='number']")[0];
+        const priceEl = row.querySelectorAll("input[type='number']")[1];
+
+        const name = nameEl ? nameEl.value.trim() : "";
+        const qty = qtyEl ? Number(qtyEl.value) : 0;
+        const price = priceEl ? Number(priceEl.value) : 0;
+
+        if (!name) {
+          showNotify("재료명을 입력해 주세요.");
+          return;
+        }
+        if (qty <= 0) {
+          showNotify(`"${name}" 수량을 확인해 주세요.`);
+          return;
+        }
+        if (price < 0) {
+          showNotify(`"${name}" 게시판가를 확인해 주세요.`);
+          return;
+        }
+
+        const subtotal = qty * price;
+        totalMatCostPerCraft += subtotal;
+        materials.push({ name, qty, price, subtotal });
+      }
+
+      const sellPrice = Number(alchemyProductPrice.value) || 0;
+      const craftCount = Math.max(1, Number(alchemyCraftCount.value) || 1);
+      const useUltimateTruth = alchemyUltimateTruth.checked;
+
+      if (sellPrice <= 0) {
+        showNotify("완성품 판매가를 입력해 주세요.");
+        return;
+      }
+
+      const craftFeePerCraft = Math.max(0, Number(alchemyCraftFee.value) || 0);
+      const totalCraftFee = craftFeePerCraft * craftCount;
+      const totalMatCost = totalMatCostPerCraft * craftCount + totalCraftFee;
+      const expectedOutputMultiplier = useUltimateTruth ? 1.1 : 1;
+      const grossRevenue = sellPrice * craftCount * expectedOutputMultiplier;
+      const feeRate = 0.05;
+      const fee = grossRevenue * feeRate;
+      const totalRevenue = grossRevenue - fee;
+      const expectedProfit = totalRevenue - totalMatCost;
+      const efficiency = totalMatCost > 0
+        ? ((expectedProfit / totalMatCost) * 100).toFixed(1)
+        : 0;
+
+      const isProfit = expectedProfit >= 0;
+      const gradeClass = isProfit ? "grade good" : "grade bad";
+      const gradeText = isProfit
+        ? (Number(efficiency) >= 50 ? "개이득" : Number(efficiency) >= 10 ? "이득" : "티끌만큼 이득")
+        : (Number(efficiency) <= -50 ? "개손해" : "손해");
+
+      let breakdownHtml = '<ul class="alchemy-breakdown">';
+      materials.forEach((m) => {
+        breakdownHtml += `<li>${m.name}: ${m.qty}개 × ${formatED(m.price)} = ${formatED(m.subtotal)}</li>`;
+      });
+      breakdownHtml += `<li>1회 재료비: ${formatED(totalMatCostPerCraft)}</li>`;
+      if (craftFeePerCraft > 0) {
+        breakdownHtml += `<li>제작 수수료: ${formatED(craftFeePerCraft)}${craftCount > 1 ? ` × ${craftCount}회 = ${formatED(totalCraftFee)}` : ""}</li>`;
+      }
+      if (craftCount > 1) {
+        breakdownHtml += `<li>총 비용: ${formatED(totalMatCost)}</li>`;
+      }
+      if (useUltimateTruth) {
+        breakdownHtml += `<li>궁극의 진리: 기대 생산량 ×1.1</li>`;
+      }
+      breakdownHtml += `<li>기대 매출: ${formatED(Math.round(grossRevenue))}</li>`;
+      breakdownHtml += `<li>게시판 수수료 (5%): -${formatED(Math.round(fee))}</li>`;
+      breakdownHtml += `<li>실수입: ${formatED(Math.round(totalRevenue))}</li>`;
+      breakdownHtml += "</ul>";
+
+      alchemyResultBox.innerHTML = `
+        <p class="score">기대 수익: ${isProfit ? "+" : ""}${formatED(Math.round(expectedProfit))}</p>
+        <p class="${gradeClass}">효율: ${efficiency}% (${gradeText})</p>
+        ${breakdownHtml}
+      `;
+    }
+
+    function resetAlchemy() {
+      clearAlchemyMaterials();
+      alchemyRecipeSelect.value = "";
+      alchemyProductPrice.value = "";
+      alchemyCraftFee.value = "0";
+      alchemyCraftCount.value = "1";
+      alchemyUltimateTruth.checked = false;
+      alchemyResultBox.innerHTML = `
+        <p class="score">기대 수익: -</p>
+        <p class="grade">효율: 계산 대기</p>
+        <p class="sub">재료와 완성품 정보를 입력 후 계산 버튼을 눌러 주세요.</p>
+      `;
+    }
+
+    populateAlchemyRecipeSelect();
+    addAlchemyMaterial();
+    alchemyRecipeSelect.addEventListener("change", () => {
+      applyAlchemyRecipe(alchemyRecipeSelect.value);
+    });
+    alchemyAddMatBtn.addEventListener("click", () => addAlchemyMaterial());
+    alchemyCalcBtn.addEventListener("click", calculateAlchemy);
+    alchemyResetBtn.addEventListener("click", resetAlchemy);
 
     renderRows();
     initDailyChecklist();
