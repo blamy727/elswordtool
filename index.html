@@ -634,6 +634,60 @@
       color: #5a575f;
     }
 
+    .collection-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .collection-item {
+      display: grid;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    .collection-item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .collection-item-name {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+
+    .collection-item-meta {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #5a575f;
+      line-height: 1.4;
+    }
+
+    .collection-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #4c4951;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .collection-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-strong);
+    }
+
     .notify-bar {
       position: fixed;
       top: 0;
@@ -735,6 +789,7 @@
           <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-dragon" id="tab-dragon" data-tab="panel-dragon">사룡무 옵변 점수 계산기</button>
           <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-doom" id="tab-doom" data-tab="panel-doom">사룡의 심장 계산기</button>
           <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-alchemy" id="tab-alchemy" data-tab="panel-alchemy">연금술 효율 계산기</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="panel-collection" id="tab-collection" data-tab="panel-collection">시너지 추천</button>
         </div>
 
       <div class="tab-panels">
@@ -864,6 +919,39 @@
           <p class="grade">효율: 계산 대기</p>
           <p class="sub">재료와 완성품 정보를 입력 후 계산 버튼을 눌러 주세요.</p>
         </div>
+      </div>
+
+      <div class="tab-panel" role="tabpanel" aria-labelledby="tab-collection" id="panel-collection">
+        <h2 class="tool-title">엘 수색대 시너지 추천</h2>
+        <p class="sub">캐릭터별 시너지 단계(0~3)를 입력하면 6칸 배치 추천을 계산합니다.</p>
+
+        <h3 class="section-title" style="margin-top:12px;">기준 라인</h3>
+        <select class="control" id="collectionBaseLine">
+          <option value="">기준 라인 선택</option>
+          <option value="1라인">1라인</option>
+          <option value="2라인">2라인</option>
+          <option value="3라인">3라인</option>
+          <option value="4라인">4라인</option>
+          <option value="healer">녹힐</option>
+        </select>
+
+        <div class="actions" style="margin-top:8px;">
+          <label class="collection-toggle"><input type="checkbox" id="collectionAdaptMode">적응력 세팅</label>
+          <label class="collection-toggle"><input type="checkbox" id="collectionAirCombatMode">공중 전투 캐릭터</label>
+        </div>
+
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn btn-primary" id="collectionCalcBtn" type="button">6칸 추천 계산</button>
+          <button class="btn btn-secondary" id="collectionAllStageBtn" type="button">전체 3단계 적용</button>
+          <button class="btn btn-secondary" id="collectionResetBtn" type="button">단계 초기화</button>
+        </div>
+
+        <div class="result" id="collectionResultBox">
+          <p class="score">추천 상태: 계산 대기</p>
+          <p class="grade">캐릭터별 시너지 단계를 선택 후 계산을 눌러 주세요.</p>
+        </div>
+
+        <div class="collection-list" id="collectionList"></div>
       </div>
       </section>
 
@@ -1099,6 +1187,14 @@
     const doomGrid = document.getElementById("doomGrid");
     const doomTargetInput = document.getElementById("doomTargetInput");
     const doomResultBox = document.getElementById("doomResultBox");
+    const collectionBaseLine = document.getElementById("collectionBaseLine");
+    const collectionAdaptMode = document.getElementById("collectionAdaptMode");
+    const collectionAirCombatMode = document.getElementById("collectionAirCombatMode");
+    const collectionList = document.getElementById("collectionList");
+    const collectionCalcBtn = document.getElementById("collectionCalcBtn");
+    const collectionAllStageBtn = document.getElementById("collectionAllStageBtn");
+    const collectionResetBtn = document.getElementById("collectionResetBtn");
+    const collectionResultBox = document.getElementById("collectionResultBox");
     const SCORE_BASE = 33;
     const DAILY_STORAGE_KEY = "elswordDailyChecklistState";
     const DAILY_QUESTS_KEY = "elswordDailyChecklistQuests";
@@ -1153,7 +1249,8 @@
       "panel-weekly": "image/weeklyquest.png",
       "panel-dragon": "image/movegod_2.png",
       "panel-doom": "image/weapon_percent.png",
-      "panel-alchemy": "image/alchemy.png"
+      "panel-alchemy": "image/alchemy.png",
+      "panel-collection": "image/alchemy.png"
     };
     const DRAGON_GRADE_IMAGE_SOURCES = {
       "돌려": "image/movegod_1.png",
@@ -1175,6 +1272,10 @@
 
       if (tabMainImage && TAB_IMAGE_SOURCES[panelId]) {
         tabMainImage.src = TAB_IMAGE_SOURCES[panelId];
+      }
+
+      if (panelId === "panel-collection") {
+        updateCollectionTabImage();
       }
     }
 
@@ -2088,6 +2189,707 @@
       }
     }
 
+    const COLLECTION_STORAGE_KEY = "elswordSynergyStages";
+    const COLLECTION_DATA = [
+      { id: "c01", name: "나이트 엠퍼러", tiers: [{ label: "1라인" }, { label: "원초적 움직임" }, { label: "정의의 관철자" }] },
+      { id: "c02", name: "룬 마스터", tiers: [{ label: "2라인" }, { label: "속성 단련자" }, { label: "마법 특화" }] },
+      { id: "c03", name: "임모탈", tiers: [{ label: "3라인" }, { label: "민첩함" }, { label: "거인 심판자" }] },
+      { id: "c04", name: "제네시스", tiers: [{ label: "4라인" }, { label: "예리함" }, { label: "정의의 관철자" }] },
+      { id: "c05", name: "에테르 세이지", tiers: [{ label: "1라인" }, { label: "탐구하는 자" }, { label: "속성 단련자" }] },
+      { id: "c06", name: "오즈 소서러", tiers: [{ label: "2라인" }, { label: "마나 수호" }, { label: "갈구함" }] },
+      { id: "c07", name: "메타모르피", tiers: [{ label: "3라인" }, { label: "물리 특화" }, { label: "시공간" }] },
+      { id: "c08", name: "로드 아조트", tiers: [{ label: "4라인" }, { label: "탐구하는 자" }, { label: "갈구함" }] },
+      { id: "c09", name: "아네모스", tiers: [{ label: "1라인" }, { label: "정령의 가호" }, { label: "민첩함" }] },
+      { id: "c10", name: "데이브레이커", tiers: [{ label: "2라인" }, { label: "정령의 가호" }, { label: "예리함" }] },
+      { id: "c11", name: "트와일라잇", tiers: [{ label: "3라인" }, { label: "정령의 가호" }, { label: "물리 특화" }] },
+      { id: "c12", name: "프로피티스", tiers: [{ label: "4라인" }, { label: "정령의 가호" }, { label: "마법 특화" }] },
+      { id: "c13", name: "퓨리어스 블레이드", tiers: [{ label: "1라인" }, { label: "원초적 움직임" }, { label: "민첩함" }] },
+      { id: "c14", name: "레이지 하츠", tiers: [{ label: "2라인" }, { label: "마법 특화" }, { label: "주먹 다짐" }] },
+      { id: "c15", name: "노바 임퍼레이터", tiers: [{ label: "3라인" }, { label: "아프니까 괜찮아" }, { label: "거인 심판자" }] },
+      { id: "c16", name: "레버넌트", tiers: [{ label: "4라인" }, { label: "갈구함" }, { label: "물리 특화" }] },
+      { id: "c17", name: "코드 : 얼티메이트", tiers: [{ label: "1라인" }, { label: "나소드 연구" }, { label: "예리함" }] },
+      { id: "c18", name: "코드 : 에센시아", tiers: [{ label: "2라인" }, { label: "나소드 연구" }, { label: "탐구하는 자" }] },
+      { id: "c19", name: "코드 : 사리엘", tiers: [{ label: "3라인" }, { label: "나소드 연구" }, { label: "전장의 천사" }] },
+      { id: "c20", name: "코드 : 안티테제", tiers: [{ label: "4라인" }, { label: "예리함" }, { label: "왜곡된 시선" }] },
+      { id: "c21", name: "코멧 크루세이더", tiers: [{ label: "1라인" }, { label: "정의의 관철자" }, { label: "속성 단련자" }] },
+      { id: "c22", name: "페이탈 팬텀", tiers: [{ label: "2라인" }, { label: "민첩함" }, { label: "마법 특화" }] },
+      { id: "c23", name: "센츄리온", tiers: [{ label: "3라인" }, { label: "탐구하는 자" }, { label: "거인 심판자" }] },
+      { id: "c24", name: "디우스 아에르", tiers: [{ label: "4라인" }, { label: "아프니까 괜찮아" }, { label: "전장의 천사" }] },
+      { id: "c25", name: "비천", tiers: [{ label: "1라인" }, { label: "정의의 관철자" }, { label: "관철의 발걸음" }] },
+      { id: "c26", name: "범황", tiers: [{ label: "2라인" }, { label: "갈구함" }, { label: "풍족한 발걸음" }] },
+      { id: "c27", name: "대라", tiers: [{ label: "3라인" }, { label: "마나 수호" }, { label: "능숙한 발걸음" }] },
+      { id: "c28", name: "일천", tiers: [{ label: "4라인" }, { label: "아프니까 괜찮아" }, { label: "교감의 발걸음" }] },
+      { id: "c29", name: "엠파이어 소드", tiers: [{ label: "1라인" }, { label: "원초적 움직임" }, { label: "정의의 관철자" }] },
+      { id: "c30", name: "플레임 로드", tiers: [{ label: "2라인" }, { label: "속성 단련자" }, { label: "예리함" }] },
+      { id: "c31", name: "블러디 퀸", tiers: [{ label: "3라인" }, { label: "아프니까 괜찮아" }, { label: "갈구함" }] },
+      { id: "c32", name: "아드레스티아", tiers: [{ label: "4라인" }, { label: "민첩함" }, { label: "예리함" }] },
+      { id: "c33", name: "둠 브링어", tiers: [{ label: "1라인" }, { label: "마법 특화" }, { label: "주먹 다짐" }] },
+      { id: "c34", name: "도미네이터", tiers: [{ label: "2라인" }, { label: "탐구하는 자" }, { label: "나소드 연구" }] },
+      { id: "c35", name: "매드 패러독스", tiers: [{ label: "3라인" }, { label: "시공간" }, { label: "갈구함" }] },
+      { id: "c36", name: "오버마인드", tiers: [{ label: "4라인" }, { label: "탐구하는 자" }, { label: "물리 특화" }] },
+      { id: "c37", name: "카타스트로피", tiers: [{ label: "1라인" }, { label: "마족" }, { label: "물리 특화" }] },
+      { id: "c38", name: "이노센트", tiers: [{ label: "2라인" }, { label: "마족" }, { label: "예리함" }] },
+      { id: "c39", name: "디앙겔리온", tiers: [{ label: "3라인" }, { label: "마족" }, { label: "갈구함" }] },
+      { id: "c40", name: "데메르시오", tiers: [{ label: "4라인" }, { label: "마족" }, { label: "아프니까 괜찮아" }] },
+      { id: "c41", name: "템페스트 버스터", tiers: [{ label: "1라인" }, { label: "예리함" }, { label: "거인 심판자" }] },
+      { id: "c42", name: "블랙 매서커", tiers: [{ label: "2라인" }, { label: "물리 특화" }, { label: "갈구함" }] },
+      { id: "c43", name: "미네르바", tiers: [{ label: "3라인" }, { label: "민첩함" }, { label: "전장의 천사" }] },
+      { id: "c44", name: "프라임 오퍼레이터", tiers: [{ label: "4라인" }, { label: "기계공학" }, { label: "탐구하는 자" }] },
+      { id: "c45", name: "리히터", tiers: [{ label: "1라인" }, { label: "정의의 관철자" }, { label: "거인 심판자" }] },
+      { id: "c46", name: "블루헨", tiers: [{ label: "2라인" }, { label: "마법 특화" }, { label: "아프니까 괜찮아" }] },
+      { id: "c47", name: "헤르셔", tiers: [{ label: "3라인" }, { label: "시공간" }, { label: "갈구함" }] },
+      { id: "c48", name: "비고트", tiers: [{ label: "4라인" }, { label: "갈구함" }, { label: "왜곡된 시선" }] },
+      { id: "c49", name: "이터니티 위너", tiers: [{ label: "1라인" }, { label: "주먹 다짐" }, { label: "예리함" }] },
+      { id: "c50", name: "라디언트 소울", tiers: [{ label: "2라인" }, { label: "마나 수호" }, { label: "아프니까 괜찮아" }] },
+      { id: "c51", name: "니샤 라비린스", tiers: [{ label: "3라인" }, { label: "물리 특화" }, { label: "라비의 친구" }] },
+      { id: "c52", name: "트윈즈 피카로", tiers: [{ label: "4라인" }, { label: "마법 특화" }, { label: "장난의 왕" }] },
+      { id: "c53", name: "리버레이터", tiers: [{ label: "1라인" }, { label: "민첩함" }, { label: "물리 특화" }] },
+      { id: "c54", name: "셀레스티아", tiers: [{ label: "2라인" }, { label: "탐구하는 자" }, { label: "거인 심판자" }] },
+      { id: "c55", name: "닉스 피에타", tiers: [{ label: "3라인" }, { label: "아프니까 괜찮아" }, { label: "예리함" }] },
+      { id: "c56", name: "모르페우스", tiers: [{ label: "4라인" }, { label: "거인 심판자" }, { label: "왜곡된 시선" }] },
+      { id: "c57", name: "젬블리스", tiers: [{ label: "1라인" }, { label: "나소드 연구" }, { label: "거인 심판자" }] },
+      { id: "c58", name: "애버리스", tiers: [{ label: "2라인" }, { label: "물리 특화" }, { label: "아프니까 괜찮아" }] },
+      { id: "c59", name: "아클리스", tiers: [{ label: "3라인" }, { label: "마법 특화" }, { label: "예리함" }] },
+      { id: "c60", name: "미스치프", tiers: [{ label: "4라인" }, { label: "갈구함" }, { label: "왜곡된 시선" }] }
+    ];
+
+    const COLLECTION_WEIGHT = {
+      raid: { "예리함": 2.4, "거인 심판자": 2.4, "갈구함": 2.2, "시공간": 2.1, "물리 특화": 1.9, "마법 특화": 1.9, "3라인": 1.8, "2라인": 1.7, "4라인": 1.6, "1라인": 1.0 },
+      adapt: { "마족": 3.2, "시공간": 2.4, "정의의 관철자": 1.8, "나소드 연구": 1.6, "속성 단련자": 1.5, "아프니까 괜찮아": 1.4, "1라인": 1.0, "2라인": 1.0, "3라인": 1.0, "4라인": 1.0 },
+      boss: { "거인 심판자": 2.5, "예리함": 2.2, "갈구함": 2.1, "주먹 다짐": 1.9, "시공간": 1.8, "물리 특화": 1.6, "마법 특화": 1.6, "3라인": 1.5, "2라인": 1.4, "4라인": 1.3, "1라인": 1.0 },
+      balanced: {}
+    };
+
+    const SYNERGY_EFFECTS = [
+      { name: "예리함", effects: ["3: 양극화 : 타격/피격 데미지 +3%", "6: 양극화 : 타격/피격 데미지 +5%"] },
+      { name: "나소드 연구", effects: ["2: 모든 스킬 재사용 시간 -2%", "4: 모든 스킬 재사용 시간 -4%"] },
+      { name: "정령의 가호", effects: ["2: 최대 HP 증가 +80000 (대전 +32000)"] },
+      { name: "물리 특화", effects: ["2: 물리 공격력 +1%", "4: 물리 공격력 +3%"] },
+      { name: "마법 특화", effects: ["2: 마법 공격력 +1%", "4: 마법 공격력 +3%"] },
+      { name: "관철의 발걸음", effects: ["1: 아이템 드랍률 +8%"] },
+      { name: "풍족한 발걸음", effects: ["1: ED 획득량 +7%"] },
+      { name: "능숙한 발걸음", effects: ["1: 경험치 획득량 +10%"] },
+      { name: "민첩함", effects: ["2: 동작속도 +3%, 이동속도 +3%, 점프속도 +3%", "4: 동작속도 +3%, 이동속도 +3%, 점프속도 +3%"] },
+      { name: "정의의 관철자", effects: ["2: 물리/마법 방어력 +4%", "4: 물리/마법 방어력 +8%"] },
+      { name: "주먹 다짐", effects: ["2: 체력 50% 이하인 적 공격 시 데미지 +2%"] },
+      { name: "시공간", effects: ["2: 적 물리/마법 방어력 무시 +2% (던전)"] },
+      { name: "마족", effects: ["3: 적응력 +2%"] },
+      { name: "거인 심판자", effects: ["2: 체력 50% 초과인 적 공격 시 데미지 +2%", "4: 체력 50% 초과인 적 공격 시 데미지 +3%", "5: 체력 50% 초과인 적 공격 시 데미지 +5%"] },
+      { name: "마나 수호", effects: ["2: 최대 MP +20", "3: 최대 MP +30"] },
+      { name: "탐구하는 자", effects: ["2: 10% 확률로 칭호 카운트 1회 추가 획득 (중복안됨)", "5: 20% 확률로 칭호 카운트 1회 추가 획득 (중복안됨)"] },
+      { name: "원초적 움직임", effects: ["2: 엘소드, 레이븐, 엘리시스 한정 2단 점프 사용 가능"] },
+      { name: "갈구함", effects: ["3: 하이퍼 액티브 사용 시 엘의 정수 1개 추가 소모, 하이퍼 액티브 스킬 데미지 +60%", "5: 하이퍼 액티브 사용 시 엘의 정수 1개 추가 소모, 하이퍼 액티브 스킬 데미지 +80%"] },
+      { name: "속성 단련자", effects: ["2: 모든 속성 저항 +30", "4: 모든 속성 저항 +60"] },
+      { name: "1라인", effects: ["3: 1라인 캐릭터의 모든 스킬 데미지 +3%", "6: 1라인 캐릭터의 모든 스킬 데미지 +5%"] },
+      { name: "2라인", effects: ["3: 2라인 캐릭터의 모든 스킬 데미지 +3%", "6: 2라인 캐릭터의 모든 스킬 데미지 +5%"] },
+      { name: "3라인", effects: ["3: 3라인 캐릭터의 모든 스킬 데미지 +3%", "6: 3라인 캐릭터의 모든 스킬 데미지 +5%"] },
+      { name: "4라인", effects: ["3: 4라인 캐릭터의 모든 스킬 데미지 +3%", "6: 4라인 캐릭터의 모든 스킬 데미지 +5%"] },
+      { name: "아프니까 괜찮아", effects: ["2: 회복 아이템 효과 +2%", "4: 회복 아이템 효과 +4%, 특정 부활 효과와 중복안됨"] },
+      { name: "기계공학", effects: ["1: 모든 마스터 스킬 재사용 시간 감소 5%"] },
+      { name: "라비의 친구", effects: ["1: 마스터 아티팩트 경험치 획득 증가 +25%"] },
+      { name: "전장의 천사", effects: ["2: 공중에서 사용한 스킬 데미지 +4%"] },
+      { name: "교감의 발걸음", effects: ["1: 회복 아이템 효과 +8%"] },
+      { name: "왜곡된 시선", effects: ["2: 공격시 입힌 피해량의 2%만큼 3초간 추가 지속 피해"] },
+      { name: "장난의 왕", effects: ["1: 효과 없음"] }
+    ];
+
+    function escapeXml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+    }
+
+    function wrapByLength(text, maxLength) {
+      const words = text.split(" ");
+      const lines = [];
+      let current = "";
+      words.forEach((word) => {
+        const candidate = current ? `${current} ${word}` : word;
+        if (candidate.length > maxLength && current) {
+          lines.push(current);
+          current = word;
+        } else {
+          current = candidate;
+        }
+      });
+      if (current) {
+        lines.push(current);
+      }
+      return lines;
+    }
+
+    function buildSynergyImageDataUri() {
+      const width = 1400;
+      const height = 1600;
+      const colWidth = 660;
+      const startX = [46, 726];
+      let col = 0;
+      let y = 76;
+      const leftRows = [];
+      const rightRows = [];
+
+      SYNERGY_EFFECTS.forEach((entry) => {
+        const targetRows = col === 0 ? leftRows : rightRows;
+        targetRows.push({ text: `${entry.name}`, isTitle: true, x: startX[col], y });
+        y += 26;
+        entry.effects.forEach((effect) => {
+          const wrapped = wrapByLength(`- ${effect}`, 38);
+          wrapped.forEach((line) => {
+            targetRows.push({ text: line, isTitle: false, x: startX[col] + 10, y });
+            y += 22;
+          });
+        });
+        y += 10;
+
+        if (y > height - 90 && col === 0) {
+          col = 1;
+          y = 76;
+        }
+      });
+
+      const rows = [...leftRows, ...rightRows];
+      const rowText = rows
+        .map((row) => `<text x="${row.x}" y="${row.y}" font-size="${row.isTitle ? 20 : 16}" font-weight="${row.isTitle ? 700 : 400}" fill="${row.isTitle ? "#202028" : "#2f3240"}">${escapeXml(row.text)}</text>`)
+        .join("");
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#fff8e3"/>
+    <stop offset="100%" stop-color="#ffe9b8"/>
+  </linearGradient>
+</defs>
+<rect width="100%" height="100%" fill="url(#bg)"/>
+<rect x="20" y="20" width="1360" height="1560" rx="18" fill="#ffffffcc" stroke="#d9b65a"/>
+<text x="50" y="52" font-size="24" font-weight="800" fill="#1f1f27">엘 수색대 시너지 효과표</text>
+<line x1="700" y1="66" x2="700" y2="1540" stroke="#e2c77c"/>
+${rowText}
+</svg>`;
+
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function updateCollectionTabImage() {
+      const src = buildSynergyImageDataUri();
+      TAB_IMAGE_SOURCES["panel-collection"] = src;
+      const activePanel = document.querySelector(".tab-panel.active");
+      if (activePanel && activePanel.id === "panel-collection" && tabMainImage) {
+        tabMainImage.src = src;
+      }
+    }
+
+    function getStageSynergies(item, stage) {
+      const safeStage = Math.max(0, Math.min(3, stage));
+      return item.tiers.slice(0, safeStage).map((tier) => tier.label);
+    }
+
+    function loadCollectionOwned() {
+      try {
+        const raw = localStorage.getItem(COLLECTION_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveCollectionOwned(state) {
+      try {
+        localStorage.setItem(COLLECTION_STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        // ignore localStorage failures
+      }
+    }
+
+    const PRIORITY_SYNERGY_SET = new Set([
+      "왜곡된 시선", "1라인", "2라인", "3라인", "4라인", "예리함",
+      "아프니까 괜찮아",
+      "거인 심판자", "주먹 다짐", "나소드 연구", "전장의 천사", "마족"
+    ]);
+
+    const PREFERRED_SYNERGY_COUNTS = {
+      "왜곡된 시선": 2,
+      "거인 심판자": 2,
+      "주먹 다짐": 2
+    };
+
+    const SYNERGY_PAIR_BONUSES = [
+      { names: ["거인 심판자", "주먹 다짐"], bonus: 90 }
+    ];
+
+    const HEALER_TARGET_COUNTS = {
+      "3라인": 3,
+      "2라인": 3,
+      "아프니까 괜찮아": 4,
+      "나소드 연구": 2
+    };
+
+    function getCollectionModes(baseLine) {
+      return {
+        adaptMode: Boolean(collectionAdaptMode && collectionAdaptMode.checked),
+        healerMode: baseLine === "healer",
+        airCombatMode: Boolean(collectionAirCombatMode && collectionAirCombatMode.checked)
+      };
+    }
+
+    function getSynergyWeight(name, playerLine, modes) {
+      if (!PRIORITY_SYNERGY_SET.has(name)) {
+        return 0;
+      }
+
+      let base = 0.05;
+
+      if (modes.healerMode) {
+        if (name === "3라인") {
+          return 36;
+        }
+        if (name === "2라인") {
+          return 32;
+        }
+        if (name === "아프니까 괜찮아") {
+          return 4;
+        }
+        if (name === "나소드 연구") {
+          return 22;
+        }
+        if (name === "왜곡된 시선") {
+          return 8;
+        }
+        if (name === "예리함") {
+          return 8;
+        }
+        if (name === "거인 심판자" || name === "주먹 다짐") {
+          return 4;
+        }
+        return 0.03;
+      }
+
+      if (name === "아프니까 괜찮아") {
+        return 0.04;
+      }
+
+      if (name === "왜곡된 시선") {
+        base = 30;
+      }
+
+      if (/^[1-4]라인$/.test(name)) {
+        base = Math.max(base, 14);
+      }
+
+      if (name === "예리함") {
+        base = Math.max(base, 11);
+      }
+
+      if (name === "거인 심판자" || name === "주먹 다짐" || name === "나소드 연구") {
+        base = Math.max(base, 8.5);
+      }
+
+      if (modes.airCombatMode && name === "전장의 천사") {
+        base = Math.max(base, 8.5);
+      }
+
+      if (modes.adaptMode && name === "마족") {
+        base = 22;
+      }
+
+      if (/^[1-4]라인$/.test(name) && playerLine && name !== playerLine) {
+        return 0;
+      }
+
+      return base;
+    }
+
+    function getThresholdList(entry) {
+      return entry.effects
+        .map((text) => Number(text.split(":")[0].trim()))
+        .filter((num) => Number.isFinite(num))
+        .sort((a, b) => a - b);
+    }
+
+    function getCappedCount(entry, count) {
+      const maxLevel = getThresholdList(entry).reduce((max, cur) => (cur > max ? cur : max), 0);
+      if (maxLevel <= 0) {
+        return count;
+      }
+      return Math.min(count, maxLevel);
+    }
+
+    function getThresholdEffects(entry, count) {
+      return entry.effects
+        .map((text) => {
+          const threshold = Number(text.split(":")[0].trim());
+          if (!Number.isFinite(threshold)) {
+            return null;
+          }
+          return count >= threshold ? { threshold, text } : null;
+        })
+        .filter(Boolean);
+    }
+
+    function buildSynergyCounts(selection, owned) {
+      const counts = {};
+      selection.forEach((item) => {
+        const stage = Number(owned[item.id] || 0);
+        getStageSynergies(item, stage).forEach((name) => {
+          counts[name] = (counts[name] || 0) + 1;
+        });
+      });
+      return counts;
+    }
+
+    function calcSynergyScore(counts, playerLine, modes) {
+      let activatedScore = 0;
+      let progressScore = 0;
+      let diversityScore = 0;
+
+      SYNERGY_EFFECTS.forEach((entry) => {
+        const rawCount = counts[entry.name] || 0;
+        const count = getCappedCount(entry, rawCount);
+        if (count <= 0) {
+          return;
+        }
+
+        const weight = getSynergyWeight(entry.name, playerLine, modes);
+        const active = getThresholdEffects(entry, count);
+        if (active.length > 0) {
+          diversityScore += weight * 0.9;
+          if (modes.healerMode && entry.name === "아프니까 괜찮아") {
+            if (count >= 4) {
+              activatedScore += weight * 14;
+            } else if (count >= 2) {
+              activatedScore += weight * 0.6;
+            }
+          } else {
+            activatedScore += weight;
+          }
+        }
+
+        const thresholds = getThresholdList(entry);
+        const nextThreshold = thresholds.find((th) => th > count);
+        if (nextThreshold) {
+          progressScore += weight * 0.12 * (count / nextThreshold);
+        }
+
+        if (modes.healerMode) {
+          const healerTarget = HEALER_TARGET_COUNTS[entry.name];
+          if (entry.name === "아프니까 괜찮아") {
+            if (count >= 4) {
+              activatedScore += weight * 1.4;
+            } else if (count >= 2) {
+              activatedScore -= weight * 0.4;
+            }
+          } else if (healerTarget && count >= healerTarget) {
+            activatedScore += weight * 0.5;
+          }
+        } else {
+          const preferredCount = PREFERRED_SYNERGY_COUNTS[entry.name];
+          if (preferredCount && count > preferredCount) {
+            activatedScore -= weight * (count - preferredCount) * 1.8;
+          }
+        }
+      });
+
+      SYNERGY_PAIR_BONUSES.forEach((pair) => {
+        const hasAll = pair.names.every((name) => (counts[name] || 0) >= (PREFERRED_SYNERGY_COUNTS[name] || 0));
+        if (hasAll) {
+          activatedScore += pair.bonus;
+        }
+      });
+
+      // If a main character line is known, prioritize reaching line(3) before other gains.
+      if (playerLine) {
+        const lineEntry = SYNERGY_EFFECTS.find((entry) => entry.name === playerLine);
+        const rawLineCount = counts[playerLine] || 0;
+        const lineCount = lineEntry ? getCappedCount(lineEntry, rawLineCount) : rawLineCount;
+        if (lineCount < 3) {
+          // Strong penalty until line(3) is reached.
+          activatedScore -= (3 - lineCount) * 120;
+        } else {
+          // Small bonus once line(3) is active.
+          activatedScore += 80;
+        }
+      }
+
+      return activatedScore + progressScore + diversityScore;
+    }
+
+    function getStateRankScore(counts, score, modes) {
+      if (modes.adaptMode) {
+        const demonEntry = SYNERGY_EFFECTS.find((entry) => entry.name === "마족");
+        const rawDemonCount = counts["마족"] || 0;
+        const cappedDemonCount = demonEntry ? getCappedCount(demonEntry, rawDemonCount) : rawDemonCount;
+        const overflowPenalty = Math.max(0, rawDemonCount - cappedDemonCount) * 20000;
+        return cappedDemonCount * 100000 + score - overflowPenalty;
+      }
+      return score;
+    }
+
+    function countUsefulSynergyAdds(baseCounts, synergies) {
+      let usefulAdds = 0;
+      let wastedAdds = 0;
+
+      synergies.forEach((name) => {
+        if (!PRIORITY_SYNERGY_SET.has(name)) {
+          return;
+        }
+        const entry = SYNERGY_EFFECTS.find((item) => item.name === name);
+        if (!entry) {
+          return;
+        }
+
+        const beforeRaw = baseCounts[name] || 0;
+        const afterRaw = beforeRaw + 1;
+        const beforeCapped = getCappedCount(entry, beforeRaw);
+        const afterCapped = getCappedCount(entry, afterRaw);
+
+        if (afterCapped > beforeCapped) {
+          usefulAdds += 1;
+        } else {
+          wastedAdds += 1;
+        }
+      });
+
+      return { usefulAdds, wastedAdds };
+    }
+
+    function getActivatedEffects(counts) {
+      const activated = [];
+      SYNERGY_EFFECTS.forEach((entry) => {
+        if (!PRIORITY_SYNERGY_SET.has(entry.name)) {
+          return;
+        }
+        const rawCount = counts[entry.name] || 0;
+        const count = getCappedCount(entry, rawCount);
+        const active = getThresholdEffects(entry, count);
+        if (active.length <= 0) {
+          return;
+        }
+
+        const highest = active.reduce((best, cur) => (cur.threshold > best.threshold ? cur : best));
+        const maxLevel = getThresholdList(entry).reduce((max, cur) => (cur > max ? cur : max), 0);
+        const desc = highest.text.includes(":") ? highest.text.split(":").slice(1).join(":").trim() : highest.text;
+        activated.push({
+          name: entry.name,
+          count,
+          rawCount,
+          threshold: highest.threshold,
+          maxLevel,
+          text: desc
+        });
+      });
+      return activated;
+    }
+
+    function addSynergiesToCounts(baseCounts, synergies) {
+      const next = { ...baseCounts };
+      synergies.forEach((name) => {
+        next[name] = (next[name] || 0) + 1;
+      });
+      return next;
+    }
+
+    function findBestSynergyTeam(candidates, owned, maxSize, playerLine, modes) {
+      if (candidates.length === 0 || maxSize <= 0) {
+        return [];
+      }
+
+      let states = [{ picked: [], pickedSet: new Set(), counts: {}, score: 0, rankScore: 0 }];
+      const beamWidth = 120;
+
+      for (let depth = 0; depth < maxSize; depth += 1) {
+        const nextStates = [];
+
+        states.forEach((state) => {
+          for (let i = 0; i < candidates.length; i += 1) {
+            const item = candidates[i];
+            if (state.pickedSet.has(item.id)) {
+              continue;
+            }
+
+            const stage = Number(owned[item.id] || 0);
+            const synergies = getStageSynergies(item, stage);
+            const nextCounts = addSynergiesToCounts(state.counts, synergies);
+            const nextPickedSet = new Set(state.pickedSet);
+            nextPickedSet.add(item.id);
+            const nextPicked = [...state.picked, item];
+            const nextScore = calcSynergyScore(nextCounts, playerLine, modes);
+            const delta = countUsefulSynergyAdds(state.counts, synergies);
+            const tieScore = delta.usefulAdds * 6;
+            const nextRankScore = getStateRankScore(nextCounts, nextScore, modes) + tieScore;
+            nextStates.push({
+              picked: nextPicked,
+              pickedSet: nextPickedSet,
+              counts: nextCounts,
+              score: nextScore,
+              rankScore: nextRankScore
+            });
+          }
+        });
+
+        if (nextStates.length === 0) {
+          break;
+        }
+
+        nextStates.sort((a, b) => b.rankScore - a.rankScore);
+        states = nextStates.slice(0, beamWidth);
+      }
+
+      states.sort((a, b) => b.rankScore - a.rankScore);
+      return states[0] ? states[0].picked : [];
+    }
+
+    function renderCollectionItems() {
+      if (!collectionList) {
+        return;
+      }
+
+      const owned = loadCollectionOwned();
+      collectionList.innerHTML = "";
+
+      COLLECTION_DATA.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "collection-item";
+
+        const head = document.createElement("div");
+        head.className = "collection-item-head";
+        const name = document.createElement("p");
+        name.className = "collection-item-name";
+        name.textContent = item.name;
+
+        const stageSelect = document.createElement("select");
+        stageSelect.className = "control";
+        stageSelect.style.maxWidth = "132px";
+        [
+          { value: "0", text: "없음" },
+          { value: "1", text: "1단계" },
+          { value: "2", text: "2단계" },
+          { value: "3", text: "3단계" }
+        ].forEach((entry) => {
+          const option = document.createElement("option");
+          option.value = entry.value;
+          option.textContent = entry.text;
+          stageSelect.appendChild(option);
+        });
+        stageSelect.value = String(Number(owned[item.id] || 0));
+        stageSelect.addEventListener("change", () => {
+          const next = loadCollectionOwned();
+          next[item.id] = Number(stageSelect.value);
+          saveCollectionOwned(next);
+        });
+
+        head.appendChild(name);
+        head.appendChild(stageSelect);
+
+        const meta = document.createElement("p");
+        meta.className = "collection-item-meta";
+        meta.textContent = item.tiers
+          .map((tier, idx) => `${idx + 1}단계: ${tier.label}`)
+          .join(" | ");
+
+        row.appendChild(head);
+        row.appendChild(meta);
+        collectionList.appendChild(row);
+      });
+    }
+
+    function calculateCollectionRecommendation() {
+      if (!collectionResultBox) {
+        return;
+      }
+
+      const owned = loadCollectionOwned();
+      const baseLine = collectionBaseLine ? collectionBaseLine.value : "";
+      if (!baseLine) {
+        collectionResultBox.innerHTML = '<p class="sub">기준 라인을 먼저 선택해 주세요.</p>';
+        return;
+      }
+      const playerLine = /^[1-4]라인$/.test(baseLine) ? baseLine : "";
+      const modes = getCollectionModes(baseLine);
+
+      const candidates = COLLECTION_DATA.filter((item) => Number(owned[item.id] || 0) > 0);
+      const activeCount = candidates.length;
+
+      const top = findBestSynergyTeam(candidates, owned, 6, playerLine, modes);
+      const finalCounts = buildSynergyCounts(top, owned);
+      const finalScore = calcSynergyScore(finalCounts, playerLine, modes);
+      const activatedEffects = getActivatedEffects(finalCounts);
+
+      let details = "";
+      if (top.length > 0) {
+        details = '<ul class="breakdown">';
+        top.forEach((item, idx) => {
+          details += `<li>SLOT ${idx + 1}: ${item.name}</li>`;
+        });
+        details += "</ul>";
+
+        if (activatedEffects.length > 0) {
+          details += '<p class="sub" style="margin-top:8px;">발동 시너지</p>';
+          details += '<ul class="breakdown">';
+          activatedEffects.forEach((entry) => {
+            details += `<li>${entry.name} (${entry.count}/${entry.maxLevel || entry.threshold}) - ${entry.text}</li>`;
+          });
+          details += "</ul>";
+        }
+      } else {
+        details = '<p class="sub">활성 가능한 시너지 단계(1~3단계) 캐릭터가 없습니다.</p>';
+      }
+
+      if (activeCount < 6) {
+        details += `<p class="sub">현재 활성 가능한 캐릭터가 ${activeCount}명이라 6칸을 모두 채울 수 없습니다.</p>`;
+      }
+
+      collectionResultBox.innerHTML = details;
+    }
+
+    function resetCollectionOwned() {
+      saveCollectionOwned({});
+      renderCollectionItems();
+      if (collectionResultBox) {
+        collectionResultBox.innerHTML = `
+          <p class="score">추천 상태: 계산 대기</p>
+          <p class="grade">시너지 단계를 초기화했습니다.</p>
+        `;
+      }
+    }
+
+    function applyAllCollectionStage(stageValue) {
+      const next = {};
+      COLLECTION_DATA.forEach((item) => {
+        next[item.id] = stageValue;
+      });
+      saveCollectionOwned(next);
+      renderCollectionItems();
+    }
+
+    function initCollectionRecommendation() {
+      if (!collectionCalcBtn || !collectionResetBtn || !collectionList) {
+        return;
+      }
+
+      renderCollectionItems();
+      updateCollectionTabImage();
+      collectionCalcBtn.addEventListener("click", calculateCollectionRecommendation);
+      if (collectionAllStageBtn) {
+        collectionAllStageBtn.addEventListener("click", () => {
+          applyAllCollectionStage(3);
+          calculateCollectionRecommendation();
+        });
+      }
+      collectionResetBtn.addEventListener("click", resetCollectionOwned);
+      if (collectionBaseLine) {
+        collectionBaseLine.addEventListener("change", calculateCollectionRecommendation);
+      }
+      if (collectionAdaptMode) {
+        collectionAdaptMode.addEventListener("change", calculateCollectionRecommendation);
+      }
+      if (collectionAirCombatMode) {
+        collectionAirCombatMode.addEventListener("change", calculateCollectionRecommendation);
+      }
+    }
+
     /* ── 연금술 레시피 데이터 ── */
     const ALCHEMY_RECIPES = [
       // { name: "완성품 이름", craftFee: 0, materials: [{ name: "재료1", qty: 5 }, { name: "재료2", qty: 3 }] },
@@ -2351,6 +3153,7 @@
     renderRows();
     initDailyChecklist();
     initWeeklyChecklist();
+    initCollectionRecommendation();
     renderDoomCalculator();
     calculateDoomRewards();
     updateResetTimers();
